@@ -1,0 +1,8 @@
+name: real_robot
+workspace:
+  x: [-1.0, 1.0]
+  y: [-1.0, 1.0]
+  z: [0.0, 1.2]
+max_velocity: 0.5
+action_timeout_seconds: 3.0
+approval_required: true
