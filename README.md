@@ -1,4 +1,4 @@
-# Pulse — Physical Agent Runtime (PAR)
+# Pulse — Physical Agent Runtime FRAMEWORK
 
 A hardware-independent runtime that sits between AI reasoning and physical robot
 execution: `Observation → Agent → Skill → Safety → Action`.
