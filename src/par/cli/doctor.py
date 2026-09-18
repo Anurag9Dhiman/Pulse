@@ -55,8 +55,21 @@ def _check_ros2() -> CheckResult:
     return CheckResult(True, "rclpy importable")
 
 
-def _pending(week: str) -> Callable[[], CheckResult]:
-    return lambda: CheckResult(False, f"not yet implemented ({week})")
+def _check_camera() -> CheckResult:
+    try:
+        import cv2  # noqa: F401
+    except ImportError:
+        return CheckResult(False, "opencv not installed (pip install par[camera]); MockCamera available for dev")
+    return CheckResult(True, "opencv importable (camera hardware not verified)")
+
+
+def _check_safety_kernel() -> CheckResult:
+    from par.safety.environment import load_profile
+    from par.safety.kernel import SafetyKernel
+
+    profile = load_profile("simulation")
+    SafetyKernel(profile)
+    return CheckResult(True, f"profile '{profile.name}' loaded")
 
 
 CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
@@ -65,8 +78,8 @@ CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
     ("Mock Robot", _check_mock_robot),
     ("LLM Planner", _check_llm_planner),
     ("ROS 2", _check_ros2),
-    ("Camera", _pending("Week 3")),
-    ("Safety Kernel", _pending("Week 3")),
+    ("Camera", _check_camera),
+    ("Safety Kernel", _check_safety_kernel),
 ]
 
 

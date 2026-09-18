@@ -13,6 +13,7 @@ class TelemetryEvent(BaseModel):
     observation: Observation
     skill: str
     safety_decision: str
+    rejection_reason: str | None = None
     action: Action
     result: ActionResult
     latency_seconds: float

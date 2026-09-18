@@ -1,0 +1,8 @@
+name: simulation
+workspace:
+  x: [-2.0, 2.0]
+  y: [-2.0, 2.0]
+  z: [0.0, 2.0]
+max_velocity: 2.0
+action_timeout_seconds: 5.0
+approval_required: false

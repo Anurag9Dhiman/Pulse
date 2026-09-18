@@ -54,3 +54,13 @@ class Agent:
         # A single successful step doesn't mean the task is done - only the
         # planner's explicit task_complete signal (see propose_action) does.
         self.state.status = AgentStatus.FAILED if not result.success else AgentStatus.EXECUTING
+
+    def record_rejection(self, action: Action, reason: str) -> None:
+        """A Safety Kernel denial is recoverable: the next loop step re-plans,
+        so - unlike record_result() - this must not flip status to FAILED."""
+        self.state.history.append(
+            {
+                "action": action.model_dump(mode="json"),
+                "result": {"success": False, "message": reason, "rejected_by_safety": True},
+            }
+        )
