@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Callable
 
@@ -36,6 +37,24 @@ def _check_agent() -> CheckResult:
     return CheckResult(True, "planner: rule-based (Week 1 stub)")
 
 
+def _check_llm_planner() -> CheckResult:
+    try:
+        import anthropic  # noqa: F401
+    except ImportError:
+        return CheckResult(False, "anthropic package not installed (pip install par[llm])")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return CheckResult(False, "ANTHROPIC_API_KEY not set")
+    return CheckResult(True, "anthropic client ready")
+
+
+def _check_ros2() -> CheckResult:
+    try:
+        import rclpy  # noqa: F401
+    except ImportError:
+        return CheckResult(False, "rclpy not installed (source ROS 2 Jazzy/Humble setup)")
+    return CheckResult(True, "rclpy importable")
+
+
 def _pending(week: str) -> Callable[[], CheckResult]:
     return lambda: CheckResult(False, f"not yet implemented ({week})")
 
@@ -44,7 +63,8 @@ CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
     ("Runtime Core", _check_runtime_core),
     ("Agent", _check_agent),
     ("Mock Robot", _check_mock_robot),
-    ("ROS 2", _pending("Week 2")),
+    ("LLM Planner", _check_llm_planner),
+    ("ROS 2", _check_ros2),
     ("Camera", _pending("Week 3")),
     ("Safety Kernel", _pending("Week 3")),
 ]

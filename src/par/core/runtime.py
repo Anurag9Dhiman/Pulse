@@ -21,12 +21,30 @@ class Runtime:
         self.robot = robot
         self.telemetry = telemetry or TelemetryLogger()
 
-    def run_once(self, goal: str) -> ActionResult:
+    def run_once(self, goal: str) -> ActionResult | None:
+        """Executes exactly one step toward goal. Returns None if already complete."""
         self.agent.set_goal(goal)
-        started = time.monotonic()
+        return self._step(goal)
 
+    def run_task(self, goal: str, max_steps: int = 10) -> list[ActionResult]:
+        """Runs the ReAct-style loop until task_complete, failure, or max_steps."""
+        self.agent.set_goal(goal)
+        results: list[ActionResult] = []
+        for _ in range(max_steps):
+            result = self._step(goal)
+            if result is None:
+                break
+            results.append(result)
+            if self.agent.state.status == AgentStatus.FAILED:
+                break
+        return results
+
+    def _step(self, goal: str) -> ActionResult | None:
+        started = time.monotonic()
         observation = self.robot.get_observation()
         action = self.agent.propose_action(observation)
+        if action is None:
+            return None
 
         # No Safety Kernel yet (Week 3); every proposed action auto-approves for now.
         action.status = ActionStatus.APPROVED
@@ -34,6 +52,7 @@ class Runtime:
 
         result = self.robot.execute(action)
         self.agent.record_result(action, result)
+        self.agent.planner.record_result(action, result)
 
         self.telemetry.log(
             TelemetryEvent(
