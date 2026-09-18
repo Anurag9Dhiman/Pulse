@@ -87,6 +87,35 @@ def test_clear_emergency_stop_restores_normal_operation():
     assert kernel.admit(_MOVE_CAPABILITY).outcome == PolicyOutcome.ALLOW
 
 
+def test_check_denies_move_that_collides_with_detected_object():
+    kernel = SafetyKernel(_PROFILE)
+    obs = Observation(
+        observation_id="o1",
+        timestamp=datetime.now(timezone.utc),
+        source="mock",
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[{"name": "obstacle_1", "position": {"x": 0.5, "y": 0.0, "z": 0.0}}],
+    )
+    action = _move_action(0.5, 0.0, 0.0)  # lands exactly on the obstacle
+    decision = kernel.check(action, obs, _MOVE_CAPABILITY)
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "collision" in decision.reason
+
+
+def test_check_allows_move_far_from_detected_objects():
+    kernel = SafetyKernel(_PROFILE)
+    obs = Observation(
+        observation_id="o1",
+        timestamp=datetime.now(timezone.utc),
+        source="mock",
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[{"name": "obstacle_1", "position": {"x": -0.9, "y": -0.9, "z": 0.0}}],
+    )
+    action = _move_action(0.3, 0.0, 0.0)  # far from the obstacle, within velocity limit
+    decision = kernel.check(action, obs, _MOVE_CAPABILITY)
+    assert decision.outcome == PolicyOutcome.ALLOW
+
+
 def test_check_escalates_high_risk_action_when_approval_required():
     profile = EnvironmentProfile(
         name="test-approval",

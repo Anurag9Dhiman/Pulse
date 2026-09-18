@@ -20,6 +20,10 @@ class MockRobot(RobotInterface):
             "blue_container": {"position": {"x": -0.3, "y": 0.4, "z": 0.0}},
         }
 
+    def add_obstacle(self, name: str, x: float, y: float, z: float) -> None:
+        """Simulates an environmental change: a new object appears mid-task."""
+        self._objects[name] = {"position": {"x": x, "y": y, "z": z}}
+
     def get_observation(self) -> Observation:
         return Observation(
             observation_id=str(uuid4()),

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from par.cli import doctor
+from par.cli import demo, doctor
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -9,10 +9,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="par")
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("doctor", help="Check runtime component readiness")
+    subparsers.add_parser("demo", help="Run the live end-to-end demo (mock robot, no hardware needed)")
 
     args = parser.parse_args(argv)
     if args.command == "doctor":
         return doctor.run()
+    if args.command == "demo":
+        return demo.run()
     return 1
 
 
