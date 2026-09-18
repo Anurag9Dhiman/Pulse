@@ -5,7 +5,7 @@ from uuid import uuid4
 from par.core.action import Action, ActionResult
 from par.core.agent_state import AgentState, AgentStatus
 from par.core.observation import Observation
-from par.core.planner import Planner, RuleBasedPlanner
+from par.core.planner import TASK_COMPLETE, Planner, RuleBasedPlanner
 from par.core.skill import SkillRegistry
 
 
@@ -27,13 +27,18 @@ class Agent:
     def set_goal(self, goal: str) -> None:
         self.state.goal = goal
         self.state.status = AgentStatus.PLANNING
+        self.planner.reset()
 
-    def propose_action(self, observation: Observation) -> Action:
+    def propose_action(self, observation: Observation) -> Action | None:
+        """Returns the next Action to take, or None if the planner signaled task completion."""
         if self.state.goal is None:
             raise AgentError("agent has no active goal")
         skill_name, parameters = self.planner.propose(
-            self.state.goal, observation, self.skill_registry.list_names()
+            self.state.goal, observation, self.skill_registry.capabilities()
         )
+        if skill_name == TASK_COMPLETE:
+            self.state.status = AgentStatus.DONE
+            return None
         skill = self.skill_registry.get(skill_name)
         action = skill.build_action(parameters)
         self.state.step_count += 1
@@ -46,4 +51,6 @@ class Agent:
                 "result": result.model_dump(mode="json"),
             }
         )
-        self.state.status = AgentStatus.DONE if result.success else AgentStatus.FAILED
+        # A single successful step doesn't mean the task is done - only the
+        # planner's explicit task_complete signal (see propose_action) does.
+        self.state.status = AgentStatus.FAILED if not result.success else AgentStatus.EXECUTING
