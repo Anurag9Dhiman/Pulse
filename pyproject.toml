@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "par"
+version = "0.1.0"
+description = "Physical Agent Runtime — a hardware-independent runtime between AI reasoning and physical robot execution"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "pydantic>=2.6",
+]
+
+[project.scripts]
+par = "par.cli.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/par"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
