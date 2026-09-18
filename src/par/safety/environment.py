@@ -22,6 +22,7 @@ class EnvironmentProfile(BaseModel):
     max_velocity: float
     action_timeout_seconds: float
     approval_required: bool = False
+    collision_margin: float = 0.2
 
 
 def load_profile(name: str) -> EnvironmentProfile:

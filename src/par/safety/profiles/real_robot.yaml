@@ -6,3 +6,4 @@ workspace:
 max_velocity: 0.5
 action_timeout_seconds: 3.0
 approval_required: true
+collision_margin: 0.5

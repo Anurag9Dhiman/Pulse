@@ -51,6 +51,26 @@ class SafetyKernel:
 
         return SafetyDecision(outcome=PolicyOutcome.ALLOW)
 
+    def _check_collision(
+        self, target: tuple[float, float, float], observation: Observation
+    ) -> SafetyDecision | None:
+        """Flags a move that lands within collision_margin of any detected
+        object - including one that appeared after the plan was made, which
+        is what turns a Safety Kernel denial into a genuine re-planning
+        trigger (see Runtime.run_task and Use Case 4 in the PAR spec)."""
+        for detection in observation.detections:
+            position = detection.get("position")
+            if not position:
+                continue
+            obstacle_point = (position.get("x", 0.0), position.get("y", 0.0), position.get("z", 0.0))
+            if math.dist(target, obstacle_point) < self.profile.collision_margin:
+                return SafetyDecision(
+                    outcome=PolicyOutcome.DENY,
+                    reason=f"collision risk: target {target} is within "
+                    f"{self.profile.collision_margin}m of detected object '{detection.get('name')}'",
+                )
+        return None
+
     def _check_move(self, action: Action, observation: Observation) -> SafetyDecision:
         target = (
             action.parameters.get("x", 0.0),
@@ -63,6 +83,10 @@ class SafetyKernel:
                 reason=f"target {target} is outside workspace bounds "
                 f"x={self.profile.workspace.x} y={self.profile.workspace.y} z={self.profile.workspace.z}",
             )
+
+        collision = self._check_collision(target, observation)
+        if collision is not None:
+            return collision
 
         current = observation.robot_state.get("position") or {"x": 0.0, "y": 0.0, "z": 0.0}
         current_point = (current["x"], current["y"], current["z"])

@@ -39,3 +39,10 @@ def test_pick_then_place_round_trip(robot: MockRobot):
     result = robot.execute(place)
     assert result.success is True
     assert "red_object" in result.message
+
+
+def test_add_obstacle_appears_in_next_observation(robot: MockRobot):
+    robot.add_obstacle("obstacle_1", 1.0, 1.0, 0.0)
+    obs = robot.get_observation()
+    obstacle = next(d for d in obs.detections if d["name"] == "obstacle_1")
+    assert obstacle["position"] == {"x": 1.0, "y": 1.0, "z": 0.0}
