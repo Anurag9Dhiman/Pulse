@@ -27,6 +27,9 @@ llm = [
 camera = [
     "opencv-python>=4.9",
 ]
+computer = [
+    "websockets>=12",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/par"]

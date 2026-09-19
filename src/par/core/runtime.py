@@ -9,6 +9,7 @@ from typing import Callable
 from par.core.action import Action, ActionResult, ActionStatus
 from par.core.agent import Agent
 from par.core.agent_state import AgentStatus
+from par.core.capability import Capability
 from par.core.world_state import WorldState
 from par.robots.base import RobotInterface
 from par.safety.kernel import SafetyKernel
@@ -103,7 +104,7 @@ class Runtime:
                 action.parameters = {**action.parameters, **decision.modified_parameters}
             action.status = ActionStatus.APPROVED
             self.agent.state.status = AgentStatus.EXECUTING
-            result = self._execute_with_timeout(action)
+            result = self._execute_with_timeout(action, capability)
             self.agent.record_result(action, result)
 
         self.agent.planner.record_result(action, result)
@@ -137,8 +138,13 @@ class Runtime:
             return SafetyDecision(outcome=PolicyOutcome.ALLOW, reason="human approved")
         return SafetyDecision(outcome=PolicyOutcome.DENY, reason=f"human denied: {decision.reason}")
 
-    def _execute_with_timeout(self, action: Action) -> ActionResult:
-        timeout = self.safety_kernel.profile.action_timeout_seconds if self.safety_kernel else None
+    def _execute_with_timeout(self, action: Action, capability: Capability) -> ActionResult:
+        if capability.execution_timeout_seconds is not None:
+            timeout = capability.execution_timeout_seconds
+        elif self.safety_kernel is not None:
+            timeout = self.safety_kernel.profile.action_timeout_seconds
+        else:
+            timeout = None
         future = self._executor.submit(self.robot.execute, action)
         try:
             return future.result(timeout=timeout)
