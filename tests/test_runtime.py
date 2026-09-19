@@ -190,3 +190,33 @@ def test_action_timeout_produces_failed_result():
     assert result.success is False
     assert "timed out" in result.message
     runtime.close()
+
+
+def test_capability_execution_timeout_overrides_profile_timeout():
+    """A capability's own execution_timeout_seconds wins over the profile's
+    action_timeout_seconds - needed for skills (e.g. computer_use) whose
+    calls legitimately run far longer than a physical action timeout."""
+    registry = SkillRegistry()
+    registry.register(
+        ParameterizedSkill(
+            Capability(
+                name="slow_op",
+                description="slow op",
+                env_profiles=["simulation"],
+                execution_timeout_seconds=1.0,
+            ),
+            required_params=set(),
+        )
+    )
+    planner = _ScriptedPlanner([("slow_op", {})])
+    agent = Agent(registry, planner=planner)
+    # Profile timeout (0.05s) would fail this action; the capability's own
+    # 1.0s timeout should be used instead, so the slow (0.1s) action succeeds.
+    safety = SafetyKernel(_profile(action_timeout_seconds=0.05))
+    runtime = Runtime(agent, _SlowRobot(delay=0.1), safety_kernel=safety)
+
+    result = runtime.run_once("slow op")
+
+    assert result is not None
+    assert result.success is True
+    runtime.close()

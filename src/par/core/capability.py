@@ -20,3 +20,4 @@ class Capability(BaseModel):
     risk: RiskLevel = RiskLevel.LOW
     supports_rollback: bool = False
     env_profiles: list[str] = Field(default_factory=lambda: ["simulation"])
+    execution_timeout_seconds: float | None = None

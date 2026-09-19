@@ -16,6 +16,7 @@ par demo                           # live end-to-end demo: golden path + obstacl
 python examples/basic_loop.py      # RuleBasedPlanner + mock robot, no API key needed
 python examples/llm_loop.py        # LLMPlanner + mock robot, requires ANTHROPIC_API_KEY
 python examples/safety_demo.py     # Safety Kernel rejecting an out-of-bounds move
+python examples/computer_use_loop.py  # delegate a step to CollectiveOS, see below
 par doctor
 pytest
 ```
@@ -57,6 +58,16 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
       full loop plus environmental-change re-planning (the Week 4 milestone)
 - [ ] Physical robot connection — covered by Week 2's `ROS2Robot`, pending
       actual hardware to point it at (see "Moving to Real Hardware" below)
+- [x] Computer-use bridge — `use_computer` capability
+      (`par.skills.computer_use`) + `ComputerAugmentedRobot`
+      (`par.robots.computer_bridge`, `par[computer]` extra) delegate a
+      computer-shaped step of a physical task to CollectiveOS's Navigation
+      Agent over its `/robot/ws` endpoint, and return the result to PAR's
+      loop. `risk=HIGH`, so it only escalates for human approval under the
+      `real_robot` profile (`approval_required: true`) — CollectiveOS's own
+      `/robot/ws` path has no HITL of its own, so this is the compensating
+      gate. Requires `COLLECTIVEOS_WS_URL` and `COLLECTIVEOS_API_TOKEN`; see
+      `examples/computer_use_loop.py`.
 
 ## Moving to Real Hardware
 
