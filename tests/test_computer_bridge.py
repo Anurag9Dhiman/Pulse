@@ -67,3 +67,21 @@ def test_computer_augmented_robot_delegates_get_observation():
 
     assert isinstance(observation, Observation)
     assert observation.source == "mock"
+
+
+def test_use_computer_is_admitted_under_both_profiles_and_escalates_when_approval_required():
+    from par.safety.environment import load_profile
+    from par.safety.kernel import SafetyKernel
+    from par.safety.policy import PolicyOutcome
+
+    capability = computer_use_skill().capability
+    observation = MockRobot().get_observation()
+    action = _action("use_computer", {"task": "t"})
+
+    for profile in (load_profile("simulation"), load_profile("real_robot")):
+        kernel = SafetyKernel(profile.model_copy(update={"approval_required": True}))
+        assert kernel.admit(capability).outcome == PolicyOutcome.ALLOW
+        assert kernel.check(action, observation, capability).outcome == PolicyOutcome.ESCALATE
+
+    unattended = SafetyKernel(load_profile("simulation"))
+    assert unattended.check(action, observation, capability).outcome == PolicyOutcome.ALLOW
