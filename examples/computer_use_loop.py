@@ -1,11 +1,15 @@
 """PAR delegating a computer-shaped step of a physical task to CollectiveOS.
 
 Wires the `use_computer` capability (par.skills.computer_use) through a
-ComputerAugmentedRobot into the normal Agent/Runtime loop, using the
-real_robot safety profile so the HIGH-risk `use_computer` capability
+ComputerAugmentedRobot into the normal Agent/Runtime loop. The safety profile
+has approval_required=True, so the HIGH-risk `use_computer` capability
 escalates to a human-approval prompt before PAR ever dispatches to
 CollectiveOS - CollectiveOS's own `/robot/ws` path has no HITL of its own,
 so this is the one approval gate in the whole round trip.
+
+The built-in physical skills are only registered for the "simulation"
+profile (the "real_robot" profile would deny them at admission), so this
+starts from "simulation" and turns approvals on.
 
 Requires:
     pip install -e ".[llm,computer]"
@@ -53,7 +57,8 @@ def main() -> None:
 
     robot = ComputerAugmentedRobot(MockRobot())
     agent = Agent(registry, planner=LLMPlanner.from_api_key())
-    safety = SafetyKernel(load_profile("real_robot"))
+    profile = load_profile("simulation").model_copy(update={"approval_required": True})
+    safety = SafetyKernel(profile)
     runtime = Runtime(agent, robot, safety_kernel=safety, human_approval=_prompt_for_approval)
 
     goal = "Look up today's date, then move to the blue_container."

@@ -63,10 +63,10 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
       (`par.robots.computer_bridge`, `par[computer]` extra) delegate a
       computer-shaped step of a physical task to CollectiveOS's Navigation
       Agent over its `/robot/ws` endpoint, and return the result to PAR's
-      loop. `risk=HIGH`, so it only escalates for human approval under the
-      `real_robot` profile (`approval_required: true`) — CollectiveOS's own
-      `/robot/ws` path has no HITL of its own, so this is the compensating
-      gate. Requires `COLLECTIVEOS_WS_URL` and `COLLECTIVEOS_API_TOKEN`; see
+      loop. `risk=HIGH`, so it escalates for human approval whenever the active
+      profile has `approval_required: true` — CollectiveOS's own `/robot/ws`
+      path has no HITL of its own, so this is the compensating gate. Needs
+      the `/robot/ws` fix in CollectiveOS (Anurag9Dhiman/CollectiveOS#119). Requires `COLLECTIVEOS_WS_URL` and `COLLECTIVEOS_API_TOKEN`; see
       `examples/computer_use_loop.py`.
 
 ## Moving to Real Hardware
