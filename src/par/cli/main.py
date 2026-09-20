@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from par.cli import demo, doctor
+from par.env import load_env
 
 
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
+    load_env()
     parser = argparse.ArgumentParser(prog="par")
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("doctor", help="Check runtime component readiness")
