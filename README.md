@@ -14,7 +14,8 @@ to real ROS 2 / a real LLM once those are available.
 pip install -e ".[dev]"
 par demo                           # live end-to-end demo: golden path + obstacle + re-plan
 python examples/basic_loop.py      # RuleBasedPlanner + mock robot, no API key needed
-python examples/llm_loop.py        # LLMPlanner + mock robot, requires ANTHROPIC_API_KEY
+python examples/llm_loop.py        # LLMPlanner (Anthropic) + mock robot, requires ANTHROPIC_API_KEY
+python examples/gemini_loop.py     # GeminiPlanner + mock robot, requires GEMINI_API_KEY (free tier)
 python examples/safety_demo.py     # Safety Kernel rejecting an out-of-bounds move
 python examples/computer_use_loop.py  # delegate a step to CollectiveOS, see below
 par doctor
@@ -41,6 +42,13 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
 - [x] Structured telemetry logging
 - [x] LLM planner (`par[llm]` extra; ReAct-style tool-use loop, `run_task()`
       loops until the model signals `task_complete`)
+- [x] Gemini planner (`par[gemini]` extra) — same `Planner` interface, for
+      Google's free tier. **Verified live** against the real API: function
+      calling, a multi-step pick/place task, and genuine re-planning after a
+      Safety Kernel denial (an obstacle blocks the requested waypoint; the model
+      receives the denial reason and picks a nearby clear one). Put the key in a
+      gitignored `.env` (see `.env.example`); `par doctor` and the examples load
+      it automatically.
 - [x] ROS 2 adapter — JSON-over-topic mapping is unit-tested; the pub/sub node
       lifecycle itself needs verification on a machine with ROS 2 Jazzy/Humble
       installed (not available in this dev environment)
@@ -72,14 +80,15 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
 ## Moving to Real Hardware
 
 Everything above is verified in this sandbox with `MockRobot` and, where
-applicable, a fake LLM client. Three things are built but genuinely
-**unverified** here because the hardware/services don't exist in this
-environment — this is what's left before Week 4 is fully done in reality,
-not just in code:
+applicable, a fake LLM client - except the Gemini planner, which has also been
+exercised live. Three things are built but genuinely **unverified** because
+the hardware/services don't exist in this environment - this is what's left
+before Week 4 is fully done in reality, not just in code:
 
 | Component | What's verified here | What you need to do |
 |---|---|---|
-| **LLM planner** | Tool-use protocol logic, against a fake client | `pip install -e ".[llm]"`, set `ANTHROPIC_API_KEY`, run `python examples/llm_loop.py`. `par doctor` will show `LLM Planner ✓` once the key is set. |
+| **Gemini planner** | ✅ Verified live (function calling, multi-step tasks, re-planning after a denial) | `pip install -e ".[gemini]"`, set `GEMINI_API_KEY` in `.env`, run `python examples/gemini_loop.py`. Free-tier eligibility and model names change over time - e.g. `gemini-2.5-flash` returned 404 "no longer available to new users" in testing - so if a call 404s, pass `model=` to `GeminiPlanner`. Worked in testing: `gemini-3.1-flash-lite` (default, ~1s/call), `gemini-3.6-flash` (~2.4s/call). |
+| **Anthropic planner** | Tool-use protocol logic, against a fake client only | `pip install -e ".[llm]"`, set `ANTHROPIC_API_KEY`, run `python examples/llm_loop.py`. `par doctor` will show `LLM Planner (Anthropic) ✓` once the key is set. |
 | **ROS 2 adapter** | JSON message-mapping functions only | Install ROS 2 Jazzy or Humble, source its `setup.bash`. `par doctor` will show `ROS 2 ✓` once `rclpy` is importable. Then point `ROS2Robot`'s topic names at your robot's actual state/detection/command topics (real or simulated via Gazebo/Isaac Sim - same adapter serves both, per the spec's sim-to-real portability goal). |
 | **Camera** | `CameraSource` interface + `MockCamera` | `pip install -e ".[camera]"`, attach a USB camera, use `USBCamera(device_index=...)`. `par doctor` will show `Camera ✓` (package-installed) once opencv is present; actual hardware capture still needs to be checked manually - a static check can't confirm a camera is physically attached and pointed at the workspace. |
 

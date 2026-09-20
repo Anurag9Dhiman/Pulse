@@ -2,6 +2,7 @@ from par.core.action import Action, ActionResult, ActionStatus
 from par.core.agent import Agent, AgentError
 from par.core.agent_state import AgentState, AgentStatus
 from par.core.capability import Capability, RiskLevel
+from par.core.gemini_planner import GeminiPlanner
 from par.core.llm_planner import LLMPlanner
 from par.core.observation import Observation
 from par.core.planner import TASK_COMPLETE, Planner, PlannerError, RuleBasedPlanner
@@ -18,6 +19,7 @@ __all__ = [
     "AgentStatus",
     "Capability",
     "RiskLevel",
+    "GeminiPlanner",
     "LLMPlanner",
     "Observation",
     "TASK_COMPLETE",
