@@ -15,6 +15,7 @@ def payload_to_observation(payload: dict[str, Any]) -> Observation:
         source="ros2",
         robot_state=payload.get("robot_state", {}),
         detections=payload.get("detections", []),
+        raw=payload.get("raw", {}),
     )
 
 
