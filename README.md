@@ -18,6 +18,7 @@ python examples/llm_loop.py        # LLMPlanner (Anthropic) + mock robot, requir
 python examples/gemini_loop.py     # GeminiPlanner + mock robot, requires GEMINI_API_KEY (free tier)
 python examples/safety_demo.py     # Safety Kernel rejecting an out-of-bounds move
 python examples/computer_use_loop.py  # delegate a step to CollectiveOS, see below
+python examples/webots_loop.py     # drive a real simulated robot (Webots), see below
 par doctor
 pytest
 ```
@@ -76,6 +77,18 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
       path has no HITL of its own, so this is the compensating gate. Needs
       the `/robot/ws` fix in CollectiveOS (Anurag9Dhiman/CollectiveOS#119). Requires `COLLECTIVEOS_WS_URL` and `COLLECTIVEOS_API_TOKEN`; see
       `examples/computer_use_loop.py`.
+- [x] Webots bridge — `WebotsRobot` (`par.robots.webots_bridge`, `par[webots]`
+      extra) drives a real physically-simulated e-puck instead of `MockRobot`,
+      over a small WebSocket bridge to a Webots extern controller (world +
+      controller live in the Reach repo's `webots/` directory, not here).
+      Reuses `par.robots.ros2_mapping`'s JSON↔Observation/Action mapping
+      unchanged, so the wire schema matches what real ROS 2 would eventually
+      carry — only the transport differs. Lets `move`/the Safety Kernel's
+      collision-margin denial be watched live instead of only trusted from
+      `ActionResult.success`. **Unverified in this environment**: no Webots
+      installation here (Homebrew's cask is currently Gatekeeper-disabled on
+      macOS); the bridge and mapping logic are unit-tested against a fake
+      collaborator. See `examples/webots_loop.py`.
 
 ## Moving to Real Hardware
 
@@ -89,7 +102,8 @@ before Week 4 is fully done in reality, not just in code:
 |---|---|---|
 | **Gemini planner** | ✅ Verified live (function calling, multi-step tasks, re-planning after a denial) | `pip install -e ".[gemini]"`, set `GEMINI_API_KEY` in `.env`, run `python examples/gemini_loop.py`. Free-tier eligibility and model names change over time - e.g. `gemini-2.5-flash` returned 404 "no longer available to new users" in testing - so if a call 404s, pass `model=` to `GeminiPlanner`. Worked in testing: `gemini-3.1-flash-lite` (default, ~1s/call), `gemini-3.6-flash` (~2.4s/call). |
 | **Anthropic planner** | Tool-use protocol logic, against a fake client only | `pip install -e ".[llm]"`, set `ANTHROPIC_API_KEY`, run `python examples/llm_loop.py`. `par doctor` will show `LLM Planner (Anthropic) ✓` once the key is set. |
-| **ROS 2 adapter** | JSON message-mapping functions only | Install ROS 2 Jazzy or Humble, source its `setup.bash`. `par doctor` will show `ROS 2 ✓` once `rclpy` is importable. Then point `ROS2Robot`'s topic names at your robot's actual state/detection/command topics (real or simulated via Gazebo/Isaac Sim - same adapter serves both, per the spec's sim-to-real portability goal). |
+| **ROS 2 adapter** | JSON message-mapping functions only | Install ROS 2 Jazzy or Humble, source its `setup.bash`. `par doctor` will show `ROS 2 ✓` once `rclpy` is importable. Then point `ROS2Robot`'s topic names at your robot's actual state/detection/command topics (real or simulated via Gazebo/Isaac Sim - same adapter serves both, per the spec's sim-to-real portability goal). Note: this machine has no official ROS 2 macOS/arm64 build and very little free disk, which is why `WebotsRobot` (below) exists as a non-ROS-2 interim path to a real simulated robot. |
+| **Webots bridge** | `WebotsRobot`/`WebotsBridge` dispatch logic, against a fake bridge | Install Webots (manual download - Homebrew's cask is Gatekeeper-disabled). Follow `Reach/webots/README.md` to launch `par_arena.wbt` and its extern controller, then run `python examples/webots_loop.py`. |
 | **Camera** | `CameraSource` interface + `MockCamera` | `pip install -e ".[camera]"`, attach a USB camera, use `USBCamera(device_index=...)`. `par doctor` will show `Camera ✓` (package-installed) once opencv is present; actual hardware capture still needs to be checked manually - a static check can't confirm a camera is physically attached and pointed at the workspace. |
 
 Once all three are in place, the same `Agent`/`Skill`/`SafetyKernel` code runs

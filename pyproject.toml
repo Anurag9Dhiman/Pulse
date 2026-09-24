@@ -35,6 +35,9 @@ camera = [
 computer = [
     "websockets>=12",
 ]
+webots = [
+    "websockets>=12",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/par"]

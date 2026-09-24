@@ -17,6 +17,12 @@ def test_payload_to_observation_defaults_missing_fields():
     obs = payload_to_observation({})
     assert obs.robot_state == {}
     assert obs.detections == []
+    assert obs.raw == {}
+
+
+def test_payload_to_observation_passes_through_raw():
+    obs = payload_to_observation({"raw": {"error": "bridge unreachable"}})
+    assert obs.raw == {"error": "bridge unreachable"}
 
 
 def test_action_to_payload_round_trip_fields():
