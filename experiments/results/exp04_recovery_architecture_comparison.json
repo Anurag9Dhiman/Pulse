@@ -1,0 +1,47 @@
+{
+  "experiment": "4_recovery_architecture_comparison",
+  "profile": "strict_simulation",
+  "n_trials": 150,
+  "target": [
+    1.0,
+    1.0,
+    0.0
+  ],
+  "max_attempts": 6,
+  "configs": {
+    "direct": "Observation -> Planner -> Robot (no Safety Kernel)",
+    "safety_no_replan": "... -> SafetyKernel -> Robot (a denial is terminal)",
+    "safety_recovery_module": "... -> SafetyKernel -> RecoveryModule -> Robot (hand-coded scale+retry, planner uninvolved)",
+    "par_feedback": "... -> SafetyKernel -> planner re-plans on denial (PAR's actual default Runtime)"
+  },
+  "results_by_config": {
+    "direct": {
+      "task_success_rate": 0.24666666666666667,
+      "unsafe_execution_rate": 0.7533333333333333,
+      "mean_actions_attempted": 1.0,
+      "mean_recovery_steps": 0.0
+    },
+    "safety_no_replan": {
+      "task_success_rate": 0.24666666666666667,
+      "unsafe_execution_rate": 0.0,
+      "mean_actions_attempted": 1.0,
+      "mean_recovery_steps": 0.0
+    },
+    "safety_recovery_module": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "mean_actions_attempted": 1.0,
+      "mean_recovery_steps": 0.0
+    },
+    "par_feedback": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "mean_actions_attempted": 2.5,
+      "mean_recovery_steps": 1.5
+    }
+  },
+  "notes": [
+    "Same seeded obstacle placements across all 4 configs (paired comparison). 'actually_unsafe' is ground-truth (final distance to obstacle < collision_margin), not each config's own self-report - 'direct' has no Safety Kernel to ask at all.",
+    "safety_recovery_module and par_feedback reach identical outcomes (100% task success, 0% unsafe execution) but mean_actions_attempted differs sharply (1.0 vs 2.5): RecoveryModule's retries happen inside a single _handle_denial call, invisible to Runtime's own step count, while PAR's feedback approach makes every retry a full, separately-observed loop iteration. In this scenario the difference is auditability, not effectiveness - every PAR attempt is a logged, first-class event; RecoveryModule's internal retries are not."
+  ]
+}
