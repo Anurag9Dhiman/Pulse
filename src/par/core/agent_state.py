@@ -20,3 +20,5 @@ class AgentState(BaseModel):
     status: AgentStatus = AgentStatus.IDLE
     step_count: int = 0
     history: list[dict[str, Any]] = Field(default_factory=list)
+    completion_message: str | None = None
+    reported_success: bool | None = None

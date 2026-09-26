@@ -85,6 +85,21 @@ def test_tools_sent_to_client_include_task_complete():
     assert tool_names == {"pick", TASK_COMPLETE}
 
 
+def test_task_complete_tool_requires_explicit_success_field():
+    # Experiment 22: the model must state success/failure explicitly, not
+    # just leave a free-text message the runtime would have to guess about.
+    response = FakeResponse(content=[FakeToolUseBlock(name="pick", input={"object": "red_object"})])
+    client = FakeClient([response])
+    planner = LLMPlanner(client)
+
+    planner.propose("pick the red object", _observation(), _capabilities())
+
+    tools = {t["name"]: t for t in client.messages.calls[0]["tools"]}
+    task_complete_schema = tools[TASK_COMPLETE]["input_schema"]
+    assert "success" in task_complete_schema["properties"]
+    assert "success" in task_complete_schema["required"]
+
+
 def test_missing_tool_call_raises_planner_error():
     response = FakeResponse(content=[FakeTextBlock(text="I'm thinking about it")])
     client = FakeClient([response])
