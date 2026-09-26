@@ -1,0 +1,9 @@
+name: high_safety
+workspace:
+  x: [-0.5, 0.5]
+  y: [-0.5, 0.5]
+  z: [0.0, 1.0]
+max_velocity: 0.1
+action_timeout_seconds: 1.0
+approval_required: true
+collision_margin: 0.5

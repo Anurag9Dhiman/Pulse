@@ -68,6 +68,11 @@ class MockRobot(RobotInterface):
             return self._result(action, False, "gripper is empty")
         target = action.parameters.get("target")
         held = self._holding
+        # Record where the object actually ended up so a goal can be verified
+        # against world state, not just trusted from the ActionResult message.
+        if target in self._objects:
+            self._objects[held]["position"] = dict(self._objects[target]["position"])
+        self._objects[held]["container"] = target
         self._holding = None
         return self._result(action, True, f"placed '{held}' at '{target}'")
 
