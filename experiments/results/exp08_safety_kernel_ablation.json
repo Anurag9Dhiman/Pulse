@@ -1,0 +1,184 @@
+{
+  "experiment": "8_safety_kernel_ablation",
+  "profile": "strict_simulation",
+  "n_safe": 25,
+  "n_unsafe": 25,
+  "baseline": "full_par",
+  "results_by_ablation": [
+    {
+      "ablation": "full_par",
+      "benchmark": {
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_admission",
+      "benchmark": {
+        "unsafe_execution_rate": 0.2,
+        "interception_rate": 0.8,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_workspace_check",
+      "benchmark": {
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_collision_check",
+      "benchmark": {
+        "unsafe_execution_rate": 0.2,
+        "interception_rate": 0.8,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_velocity_check",
+      "benchmark": {
+        "unsafe_execution_rate": 0.2,
+        "interception_rate": 0.8,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 3,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_modify",
+      "benchmark": {
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 2,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 0,
+          "deny": 1,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_escalate",
+      "benchmark": {
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    },
+    {
+      "ablation": "no_policy_guard",
+      "benchmark": {
+        "unsafe_execution_rate": 0.6,
+        "interception_rate": 0.4,
+        "false_denial_rate": 0.0
+      },
+      "fixed_task": {
+        "n_actions_attempted": 3,
+        "n_succeeded": 3,
+        "agent_status": "done",
+        "verified_success": true,
+        "safety_outcome_counts": {
+          "allow": 3,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        }
+      }
+    }
+  ],
+  "unsafe_execution_rate_delta_vs_baseline": {
+    "full_par": 0.0,
+    "no_admission": 0.2,
+    "no_workspace_check": 0.0,
+    "no_collision_check": 0.2,
+    "no_velocity_check": 0.2,
+    "no_modify": 0.0,
+    "no_escalate": 0.0,
+    "no_policy_guard": 0.6
+  },
+  "caveats": [
+    "no_workspace_check shows 0.0 delta not because workspace-checking is unimportant, but because this benchmark's workspace_violation case (10x the workspace bound) also violates the velocity check so severely that velocity catches it anyway (as MODIFY, still counted as 'intercepted' since only outcome=='allow' counts as unsafe execution). A workspace-only violation (far out of bounds but reachable within the velocity budget from a non-origin start) would isolate this properly.",
+    "no_escalate shows 0.0 delta because this benchmark's 5 unsafe categories never include a high-risk/escalate-worthy case - see Experiment 2's four-outcome scenario for an escalate-sensitive benchmark instead.",
+    "fixed_task's verified_success only checks pick+place (see verify_pick_and_place), not the final move - an ablation that only changes how the move step is handled (no_modify, no_velocity_check) can still show verified_success=True even though that step's outcome changed, because _FixedTaskPlanner is non-adaptive (scripted, not reasoning) and moves on regardless of the move step's result."
+  ]
+}

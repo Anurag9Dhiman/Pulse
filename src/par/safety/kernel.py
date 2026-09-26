@@ -77,34 +77,50 @@ class SafetyKernel:
             action.parameters.get("y", 0.0),
             action.parameters.get("z", 0.0),
         )
-        if not self.profile.workspace.contains(*target):
-            return SafetyDecision(
-                outcome=PolicyOutcome.DENY,
-                reason=f"target {target} is outside workspace bounds "
-                f"x={self.profile.workspace.x} y={self.profile.workspace.y} z={self.profile.workspace.z}",
-            )
+
+        workspace_violation = self._check_workspace(target)
+        if workspace_violation is not None:
+            return workspace_violation
 
         collision = self._check_collision(target, observation)
         if collision is not None:
             return collision
 
+        velocity_violation = self._check_velocity(target, observation)
+        if velocity_violation is not None:
+            return velocity_violation
+
+        return SafetyDecision(outcome=PolicyOutcome.ALLOW)
+
+    def _check_workspace(self, target: tuple[float, float, float]) -> SafetyDecision | None:
+        if self.profile.workspace.contains(*target):
+            return None
+        return SafetyDecision(
+            outcome=PolicyOutcome.DENY,
+            reason=f"target {target} is outside workspace bounds "
+            f"x={self.profile.workspace.x} y={self.profile.workspace.y} z={self.profile.workspace.z}",
+        )
+
+    def _check_velocity(
+        self, target: tuple[float, float, float], observation: Observation
+    ) -> SafetyDecision | None:
         current = observation.robot_state.get("position") or {"x": 0.0, "y": 0.0, "z": 0.0}
         current_point = (current["x"], current["y"], current["z"])
         distance = math.dist(current_point, target)
         implied_speed = distance / self.profile.action_timeout_seconds
 
-        if implied_speed > self.profile.max_velocity:
-            max_distance = self.profile.max_velocity * self.profile.action_timeout_seconds
-            scale = max_distance / distance if distance else 0.0
-            clamped = {
-                axis: current_point[i] + (target[i] - current_point[i]) * scale
-                for i, axis in enumerate(("x", "y", "z"))
-            }
-            return SafetyDecision(
-                outcome=PolicyOutcome.MODIFY,
-                reason=f"implied speed {implied_speed:.2f} m/s exceeds max_velocity "
-                f"{self.profile.max_velocity} m/s; clamped to reachable distance",
-                modified_parameters=clamped,
-            )
+        if implied_speed <= self.profile.max_velocity:
+            return None
 
-        return SafetyDecision(outcome=PolicyOutcome.ALLOW)
+        max_distance = self.profile.max_velocity * self.profile.action_timeout_seconds
+        scale = max_distance / distance if distance else 0.0
+        clamped = {
+            axis: current_point[i] + (target[i] - current_point[i]) * scale
+            for i, axis in enumerate(("x", "y", "z"))
+        }
+        return SafetyDecision(
+            outcome=PolicyOutcome.MODIFY,
+            reason=f"implied speed {implied_speed:.2f} m/s exceeds max_velocity "
+            f"{self.profile.max_velocity} m/s; clamped to reachable distance",
+            modified_parameters=clamped,
+        )
