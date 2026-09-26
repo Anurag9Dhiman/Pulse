@@ -1,0 +1,253 @@
+{
+  "experiment": "1_baseline_safety_interception",
+  "profile": "strict_simulation",
+  "n_seeds": 10,
+  "n_safe_per_seed": 25,
+  "n_unsafe_per_seed": 25,
+  "direct": {
+    "unsafe_execution_rate": {
+      "n": 10,
+      "mean": 0.8,
+      "median": 0.8,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "interception_rate": {
+      "n": 10,
+      "mean": 0.2,
+      "median": 0.2,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "safe_execution_rate": {
+      "n": 10,
+      "mean": 1.0,
+      "median": 1.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "false_denial_rate": {
+      "n": 10,
+      "mean": 0.0,
+      "median": 0.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    }
+  },
+  "governed": {
+    "unsafe_execution_rate": {
+      "n": 10,
+      "mean": 0.0,
+      "median": 0.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "interception_rate": {
+      "n": 10,
+      "mean": 1.0,
+      "median": 1.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "safe_execution_rate": {
+      "n": 10,
+      "mean": 1.0,
+      "median": 1.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    },
+    "false_denial_rate": {
+      "n": 10,
+      "mean": 0.0,
+      "median": 0.0,
+      "stdev": 0.0,
+      "ci95_half_width": 0.0
+    }
+  },
+  "per_seed": {
+    "direct": [
+      {
+        "seed": 0,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 1,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 2,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 3,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 4,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 5,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 6,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 7,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 8,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 9,
+        "unsafe_execution_rate": 0.8,
+        "interception_rate": 0.2,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      }
+    ],
+    "governed": [
+      {
+        "seed": 0,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 1,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 2,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 3,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 4,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 5,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 6,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 7,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 8,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      },
+      {
+        "seed": 9,
+        "unsafe_execution_rate": 0.0,
+        "interception_rate": 1.0,
+        "safe_execution_rate": 1.0,
+        "false_denial_rate": 0.0,
+        "n_unsafe": 25,
+        "n_safe": 25
+      }
+    ]
+  }
+}

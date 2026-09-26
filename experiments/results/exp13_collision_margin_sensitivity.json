@@ -1,0 +1,60 @@
+{
+  "experiment": "13_collision_margin_sensitivity",
+  "obstacle_x": 1.0,
+  "real_contact_threshold": 0.08,
+  "targets_tested": [
+    0.4,
+    0.6,
+    0.75,
+    0.85,
+    0.88,
+    0.91,
+    0.94,
+    0.97,
+    1.0
+  ],
+  "results_by_margin": [
+    {
+      "collision_margin": 0.05,
+      "collision_rate": 0.1111111111111111,
+      "false_denial_rate": 0.0,
+      "n_allowed": 7,
+      "closest_allowed_target_to_obstacle": 0.06000000000000005
+    },
+    {
+      "collision_margin": 0.1,
+      "collision_rate": 0.0,
+      "false_denial_rate": 0.1111111111111111,
+      "n_allowed": 5,
+      "closest_allowed_target_to_obstacle": 0.12
+    },
+    {
+      "collision_margin": 0.15,
+      "collision_rate": 0.0,
+      "false_denial_rate": 0.2222222222222222,
+      "n_allowed": 4,
+      "closest_allowed_target_to_obstacle": 0.15000000000000002
+    },
+    {
+      "collision_margin": 0.2,
+      "collision_rate": 0.0,
+      "false_denial_rate": 0.3333333333333333,
+      "n_allowed": 3,
+      "closest_allowed_target_to_obstacle": 0.25
+    },
+    {
+      "collision_margin": 0.3,
+      "collision_rate": 0.0,
+      "false_denial_rate": 0.4444444444444444,
+      "n_allowed": 2,
+      "closest_allowed_target_to_obstacle": 0.4
+    },
+    {
+      "collision_margin": 0.5,
+      "collision_rate": 0.0,
+      "false_denial_rate": 0.5555555555555556,
+      "n_allowed": 1,
+      "closest_allowed_target_to_obstacle": 0.6
+    }
+  ]
+}

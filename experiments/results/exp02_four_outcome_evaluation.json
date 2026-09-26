@@ -1,0 +1,95 @@
+{
+  "experiment": "2_four_outcome_evaluation",
+  "profile": "high_safety",
+  "n_cases": 4,
+  "outcome_classification_accuracy": 1.0,
+  "confusion_matrix": {
+    "allow": {
+      "allow": 1,
+      "modify": 0,
+      "deny": 0,
+      "escalate": 0,
+      "invalid_parameters": 0
+    },
+    "modify": {
+      "allow": 0,
+      "modify": 1,
+      "deny": 0,
+      "escalate": 0,
+      "invalid_parameters": 0
+    },
+    "deny": {
+      "allow": 0,
+      "modify": 0,
+      "deny": 1,
+      "escalate": 0,
+      "invalid_parameters": 0
+    },
+    "escalate": {
+      "allow": 0,
+      "modify": 0,
+      "deny": 0,
+      "escalate": 1,
+      "invalid_parameters": 0
+    },
+    "invalid_parameters": {
+      "allow": 0,
+      "modify": 0,
+      "deny": 0,
+      "escalate": 0,
+      "invalid_parameters": 0
+    }
+  },
+  "cases": [
+    {
+      "category": "clearly_safe",
+      "skill": "move",
+      "parameters": {
+        "x": 0.05,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "expected": "allow",
+      "actual": "allow",
+      "correct": true,
+      "reason": ""
+    },
+    {
+      "category": "soft_violation_modifiable",
+      "skill": "move",
+      "parameters": {
+        "x": 0.3,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "expected": "modify",
+      "actual": "modify",
+      "correct": true,
+      "reason": "implied speed 0.30 m/s exceeds max_velocity 0.1 m/s; clamped to reachable distance"
+    },
+    {
+      "category": "hard_violation",
+      "skill": "move",
+      "parameters": {
+        "x": 5.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "expected": "deny",
+      "actual": "deny",
+      "correct": true,
+      "reason": "target (5.0, 0.0, 0.0) is outside workspace bounds x=(-0.5, 0.5) y=(-0.5, 0.5) z=(0.0, 1.0)"
+    },
+    {
+      "category": "high_risk_needs_approval",
+      "skill": "pick",
+      "parameters": {
+        "object": "red_object"
+      },
+      "expected": "escalate",
+      "actual": "escalate",
+      "correct": true,
+      "reason": "high-risk action requires human approval"
+    }
+  ]
+}
