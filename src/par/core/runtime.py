@@ -92,13 +92,7 @@ class Runtime:
 
         if decision.outcome == PolicyOutcome.DENY:
             action.status = ActionStatus.REJECTED
-            result = ActionResult(
-                action_id=action.action_id,
-                success=False,
-                message=decision.reason,
-                completed_at=datetime.now(timezone.utc),
-            )
-            self.agent.record_rejection(action, decision.reason)
+            result = self._handle_denial(action, decision)
         else:
             if decision.outcome == PolicyOutcome.MODIFY and decision.modified_parameters:
                 action.parameters = {**action.parameters, **decision.modified_parameters}
@@ -123,6 +117,30 @@ class Runtime:
                 success=result.success,
             )
         )
+        return result
+
+    def _handle_denial(self, action: Action, decision: SafetyDecision) -> ActionResult:
+        """A denial is recoverable by default: fed back to the planner
+        without marking the task FAILED, so run_task's loop re-plans around
+        it (see Agent.record_rejection). Overridable for research comparisons
+        against architectures where a denial is terminal or handled by a
+        separate recovery mechanism instead of the planner's own reasoning -
+        see par.evaluation.recovery_architectures (Experiment 4).
+
+        MUST return the ActionResult that should actually be reported/logged:
+        _step() uses this return value for telemetry and its own return, not
+        just whatever side effect this method has on agent.state - an
+        override that resolves a denial into a real success (e.g. a retried
+        action) but returns the original denial would make that resolution
+        invisible to every caller and to telemetry.
+        """
+        result = ActionResult(
+            action_id=action.action_id,
+            success=False,
+            message=decision.reason,
+            completed_at=datetime.now(timezone.utc),
+        )
+        self.agent.record_rejection(action, decision.reason)
         return result
 
     def _evaluate_safety(self, action: Action, observation, capability) -> SafetyDecision:
