@@ -86,8 +86,9 @@ class Runtime:
 
         capability = self.agent.skill_registry.get(action.skill_name).capability
         decision = self._evaluate_safety(action, observation, capability)
+        escalated = decision.outcome == PolicyOutcome.ESCALATE
 
-        if decision.outcome == PolicyOutcome.ESCALATE:
+        if escalated:
             decision = self._resolve_escalation(action, decision)
 
         if decision.outcome == PolicyOutcome.DENY:
@@ -111,6 +112,7 @@ class Runtime:
                 skill=action.skill_name,
                 safety_decision=decision.outcome.value,
                 rejection_reason=decision.reason if decision.outcome == PolicyOutcome.DENY else None,
+                escalated=escalated,
                 action=action,
                 result=result,
                 latency_seconds=time.monotonic() - started,

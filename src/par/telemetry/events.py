@@ -14,6 +14,7 @@ class TelemetryEvent(BaseModel):
     skill: str
     safety_decision: str
     rejection_reason: str | None = None
+    escalated: bool = False
     action: Action
     result: ActionResult
     latency_seconds: float
