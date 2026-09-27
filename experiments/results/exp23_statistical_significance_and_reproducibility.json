@@ -1,0 +1,92 @@
+{
+  "experiment": "23_statistical_significance_and_reproducibility",
+  "exact_reproducibility_checks": [
+    {
+      "experiment": "exp01_baseline_safety_interception",
+      "identical_on_rerun": true,
+      "latency_fields_excluded_from_comparison": false
+    },
+    {
+      "experiment": "exp08_safety_kernel_ablation",
+      "identical_on_rerun": true,
+      "latency_fields_excluded_from_comparison": false
+    },
+    {
+      "experiment": "exp20_scaling_evaluation",
+      "identical_on_rerun": true,
+      "latency_fields_excluded_from_comparison": true
+    },
+    {
+      "experiment": "exp21_long_horizon_evaluation",
+      "identical_on_rerun": true,
+      "latency_fields_excluded_from_comparison": true
+    }
+  ],
+  "all_exact_reproducibility_checks_passed": true,
+  "seeded_experiment_reproducibility": {
+    "same_seed_identical": true,
+    "different_seed_preserves_capability_restricted_invariant": true,
+    "different_seed_changes_underlying_random_draw": true,
+    "note": "exp19's own aggregated per-family fields (n_actions_proposed, safety_outcomes, final success) are deliberately invariant to the exact value drawn within a family's safe range, so a direct check against the random draw itself is used here instead of comparing run() output, which wouldn't detect a seed change."
+  },
+  "statistical_reporting_audit": {
+    "stat_summary_dicts_per_result_file": {
+      "exp01_baseline_safety_interception": 8,
+      "exp02_four_outcome_evaluation": 0,
+      "exp03_safety_denial_and_replanning": 2,
+      "exp04_recovery_architecture_comparison": 0,
+      "exp05_planner_independence": 0,
+      "exp06_environment_profile_independence": 0,
+      "exp07_dynamic_environment_robustness": 14,
+      "exp08_safety_kernel_ablation": 0,
+      "exp09_runtime_latency_overhead": 0,
+      "exp10_adversarial_planner": 0,
+      "exp11_human_escalation": 0,
+      "exp12_capability_admission": 0,
+      "exp13_collision_margin_sensitivity": 0,
+      "exp14_velocity_constraint_sensitivity": 0,
+      "exp15_failure_taxonomy": 0,
+      "exp16_live_api_validation": 0,
+      "exp17_ros2_integration": 0,
+      "exp18_physical_robot_validation": 0,
+      "exp19_task_diverse_benchmark": 0,
+      "exp20_scaling_evaluation": 6,
+      "exp21_long_horizon_evaluation": 5,
+      "exp22_completion_state_validation": 0
+    },
+    "files_with_zero_stat_summary_dicts": [
+      "exp02_four_outcome_evaluation",
+      "exp04_recovery_architecture_comparison",
+      "exp05_planner_independence",
+      "exp06_environment_profile_independence",
+      "exp08_safety_kernel_ablation",
+      "exp09_runtime_latency_overhead",
+      "exp10_adversarial_planner",
+      "exp11_human_escalation",
+      "exp12_capability_admission",
+      "exp13_collision_margin_sensitivity",
+      "exp14_velocity_constraint_sensitivity",
+      "exp15_failure_taxonomy",
+      "exp16_live_api_validation",
+      "exp17_ros2_integration",
+      "exp18_physical_robot_validation",
+      "exp19_task_diverse_benchmark",
+      "exp22_completion_state_validation"
+    ],
+    "note": "A 'stat summary dict' matches par.evaluation.metrics.SummaryStats's shape (n/mean/median/stdev/ci95_half_width) - the shared reporting format this suite standardized on. A file with 0 is not necessarily non-compliant: Experiments 16-18 are explicitly-documented methodological/not-run entries with no numeric trial data to summarize (see their own 'status' fields), and some experiments report classification metrics (confusion matrices, precision/recall) for which mean/stdev is the wrong format, not a missing one."
+  },
+  "provenance_for_exact_reproduction": {
+    "python_version": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
+    "git_commit": "e16044bfce2ef59c360a159ba1d3816df96b7421",
+    "package_versions": {
+      "pydantic": "2.13.5",
+      "pyyaml": "6.0.3",
+      "python-dotenv": "1.2.3",
+      "pytest": "9.1.1",
+      "anthropic": "1.6.0",
+      "google-genai": "2.24.0"
+    }
+  },
+  "note": "This experiment verifies, by actually re-running code rather than asserting it, that (a) deterministic experiments in this suite reproduce bit-identical results run-to-run once wall-clock latency fields are excluded, (b) the one seeded-RNG experiment (19) reproduces identically under a fixed seed and preserves its by-design invariants under a different one, and (c) which result files already carry the shared statistical reporting format. It also persists the exact software/environment provenance needed to reproduce any run in this suite."
+}
