@@ -1,0 +1,201 @@
+{
+  "experiment": "19_task_diverse_benchmark",
+  "n_trials_per_family": 20,
+  "families": [
+    "navigation",
+    "reaching",
+    "object_detection",
+    "pick_and_place",
+    "inspection",
+    "object_transport",
+    "workspace_constrained_manipulation",
+    "capability_restricted"
+  ],
+  "results_by_family": {
+    "navigation": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 3.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "navigation task",
+        "n_actions_proposed": 3,
+        "n_executions": 3,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 3,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "reaching": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 1.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "reaching task",
+        "n_actions_proposed": 1,
+        "n_executions": 1,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 1,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "object_detection": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 1.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "object_detection task",
+        "n_actions_proposed": 1,
+        "n_executions": 1,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 1,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "pick_and_place": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 2.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "pick_and_place task",
+        "n_actions_proposed": 2,
+        "n_executions": 2,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 2,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "inspection": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 1.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "inspection task",
+        "n_actions_proposed": 1,
+        "n_executions": 1,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 1,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "object_transport": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 3.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "object_transport task",
+        "n_actions_proposed": 3,
+        "n_executions": 3,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 3,
+          "modify": 0,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "workspace_constrained_manipulation": {
+      "n_trials": 20,
+      "task_success_rate": 1.0,
+      "mean_actions_proposed": 3.0,
+      "mean_denials": 0.0,
+      "sample_trial": {
+        "goal": "workspace_constrained_manipulation task",
+        "n_actions_proposed": 3,
+        "n_executions": 3,
+        "n_denials": 0,
+        "safety_outcomes": {
+          "allow": 2,
+          "modify": 1,
+          "deny": 0,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": true,
+          "last_action_success": true
+        }
+      }
+    },
+    "capability_restricted": {
+      "n_trials": 20,
+      "task_success_rate": 0.0,
+      "mean_actions_proposed": 1.0,
+      "mean_denials": 1.0,
+      "sample_trial": {
+        "goal": "capability_restricted task",
+        "n_actions_proposed": 1,
+        "n_executions": 0,
+        "n_denials": 1,
+        "safety_outcomes": {
+          "allow": 0,
+          "modify": 0,
+          "deny": 1,
+          "escalate": 0
+        },
+        "final_outcome": {
+          "agent_status": "done",
+          "reported_success": false,
+          "last_action_success": false
+        }
+      }
+    }
+  },
+  "note": "Tasks are composed from PAR's actual 6 builtin skills (detect, move, pick, place, stop, inspect) - there is no 7th skill to draw genuinely different task types from, so 'diverse' here means diverse composition and constraint (single-step vs multi-step, generous vs tight workspace, registered vs restricted capability), not a larger skill vocabulary. capability_restricted is expected to show 0% task_success_rate by design (the one capability this planner is scripted to use is deliberately unregistered) - that's the correct outcome being verified, not a failure of the suite."
+}
