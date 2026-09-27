@@ -1,0 +1,147 @@
+{
+  "experiment": "7_dynamic_environment_robustness",
+  "profile": "strict_simulation",
+  "n_trials_per_level": 60,
+  "levels": [
+    "none",
+    "one_obstacle",
+    "multiple_obstacles",
+    "moving_obstacle",
+    "changed_workspace",
+    "changed_velocity",
+    "capability_restricted"
+  ],
+  "results_by_level": {
+    "none": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 3.0,
+        "median": 3.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "one_obstacle": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 2.0,
+        "median": 2.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 5.0,
+        "median": 5.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "multiple_obstacles": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 3.0,
+        "median": 3.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 6.0,
+        "median": 6.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "moving_obstacle": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 2.0,
+        "median": 2.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 5.0,
+        "median": 5.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "changed_workspace": {
+      "task_success_rate": 0.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 8.0,
+        "median": 8.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 10.0,
+        "median": 10.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "changed_velocity": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 3.0,
+        "median": 3.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    },
+    "capability_restricted": {
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "replanning_steps": {
+        "n": 60,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "recovery_time_actions": {
+        "n": 60,
+        "mean": 4.0,
+        "median": 4.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
+    }
+  },
+  "notes": [
+    "Perturbation applied after leg 1 completes (plan formed and partly executed under valid conditions, then the world changed), except moving_obstacle which continues to drift on every subsequent step, and capability_restricted which is lifted again after one blocked attempt (modeling 'temporarily unavailable').",
+    "changed_workspace correctly shows 0% success, not a mechanism failure: the shrunk workspace makes TARGET itself permanently unreachable, and this planner's nudge strategy only moves the candidate further from the origin, which happens to make things worse, not better, once the workspace has shrunk. It exhausts all 8 attempts and gives up honestly (reported_success=False) rather than claiming a completion that didn't happen - the recovery mechanism's limit here is the planner's simple nudge heuristic, not the Safety Kernel or the re-planning loop itself.",
+    "changed_velocity shows 100% success with 0 replanning steps - not because velocity changes are easy to recover from, but because a lower max_velocity still produces MODIFY (a clamped, successful move), never DENY, so this planner never sees a denial to react to at all. 'Success' here means 'a safety-clamped move executed without violation', not 'reached the original target' - the clamped distance under this profile's numbers is small."
+  ]
+}
