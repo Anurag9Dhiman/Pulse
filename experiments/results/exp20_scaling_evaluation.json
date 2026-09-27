@@ -1,0 +1,100 @@
+{
+  "experiment": "20_scaling_evaluation",
+  "n_violations_levels": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    10
+  ],
+  "n_trials_per_level": 15,
+  "max_attempts": 12,
+  "results_by_n_violations": {
+    "0": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 0.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 7.378040075612565e-05,
+        "median": 5.604198668152094e-05,
+        "stdev": 6.280952350143396e-05,
+        "ci95_half_width": 3.178600449789221e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    },
+    "1": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 1.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 7.221940128753583e-05,
+        "median": 6.733299233019352e-05,
+        "stdev": 1.2246881908137771e-05,
+        "ci95_half_width": 6.197777370629702e-06
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    },
+    "2": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 2.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 8.27247315707306e-05,
+        "median": 8.099997648969293e-05,
+        "stdev": 6.948194703909405e-06,
+        "ci95_half_width": 3.5162716702611657e-06
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    },
+    "3": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 3.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.00010550519800744951,
+        "median": 0.00010203997953794897,
+        "stdev": 1.088864669777615e-05,
+        "ci95_half_width": 5.510415516901193e-06
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    },
+    "5": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 5.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.00012768899517444273,
+        "median": 0.00012554199201986194,
+        "stdev": 6.231573833809399e-06,
+        "ci95_half_width": 3.1536114727234126e-06
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    },
+    "10": {
+      "n_trials": 15,
+      "probability_eventual_completion": 1.0,
+      "n_successful_recoveries_mean": 10.0,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.0002108255944525202,
+        "median": 0.00021104302140884101,
+        "stdev": 2.056016583048004e-05,
+        "ci95_half_width": 1.0404879501277032e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "planner_termination_rate": 0.0
+    }
+  },
+  "note": "Since N_violations directly engineers exactly that many forced denials (via obstacles placed at RecoveringMovePlanner's own deterministic candidate sequence) and max_attempts=12 exceeds the largest tested level (10), completion is expected at or near 100% for every level up to 10 - this experiment demonstrates that recovery scales linearly with violation count up to the planner's attempt budget, not that recovery is unconditionally guaranteed at arbitrary scale (Experiment 3's caveat about nudge-vs-obstacle-range geometry applies here too, deliberately controlled for rather than left to chance)."
+}
