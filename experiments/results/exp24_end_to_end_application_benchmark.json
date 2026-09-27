@@ -1,0 +1,171 @@
+{
+  "experiment": "24_end_to_end_application_benchmark",
+  "profiles_tested": [
+    "simulation",
+    "real_robot",
+    "high_safety"
+  ],
+  "escalation_profiles_tested": [
+    "real_robot",
+    "high_safety"
+  ],
+  "perturbation_results": [
+    {
+      "profile": "simulation",
+      "condition": "normal",
+      "task_success": true,
+      "n_denials": 0,
+      "recovered": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.0003799989935941994,
+      "n_planner_actions": 3,
+      "n_safety_kernel_decisions": 3
+    },
+    {
+      "profile": "simulation",
+      "condition": "perturbed",
+      "task_success": true,
+      "n_denials": 1,
+      "recovered": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00016337601118721068,
+      "n_planner_actions": 4,
+      "n_safety_kernel_decisions": 4
+    },
+    {
+      "profile": "real_robot",
+      "condition": "normal",
+      "task_success": true,
+      "n_denials": 0,
+      "recovered": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00010845903307199478,
+      "n_planner_actions": 3,
+      "n_safety_kernel_decisions": 3
+    },
+    {
+      "profile": "real_robot",
+      "condition": "perturbed",
+      "task_success": true,
+      "n_denials": 1,
+      "recovered": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00012216504546813667,
+      "n_planner_actions": 4,
+      "n_safety_kernel_decisions": 4
+    },
+    {
+      "profile": "high_safety",
+      "condition": "normal",
+      "task_success": true,
+      "n_denials": 0,
+      "recovered": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.000105710030766204,
+      "n_planner_actions": 3,
+      "n_safety_kernel_decisions": 3
+    },
+    {
+      "profile": "high_safety",
+      "condition": "perturbed",
+      "task_success": false,
+      "n_denials": 4,
+      "recovered": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00015524995978921652,
+      "n_planner_actions": 6,
+      "n_safety_kernel_decisions": 6
+    }
+  ],
+  "escalation_results": [
+    {
+      "profile": "real_robot",
+      "approval_mode": "approved",
+      "task_success": true,
+      "n_escalations": 1,
+      "human_escalation_occurred": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 8.479197276756167e-05,
+      "n_planner_actions": 2,
+      "n_safety_kernel_decisions": 2
+    },
+    {
+      "profile": "real_robot",
+      "approval_mode": "rejected",
+      "task_success": false,
+      "n_escalations": 1,
+      "human_escalation_occurred": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 6.0457998188212514e-05,
+      "n_planner_actions": 2,
+      "n_safety_kernel_decisions": 2
+    },
+    {
+      "profile": "high_safety",
+      "approval_mode": "approved",
+      "task_success": true,
+      "n_escalations": 1,
+      "human_escalation_occurred": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 7.541701779700816e-05,
+      "n_planner_actions": 2,
+      "n_safety_kernel_decisions": 2
+    },
+    {
+      "profile": "high_safety",
+      "approval_mode": "rejected",
+      "task_success": false,
+      "n_escalations": 1,
+      "human_escalation_occurred": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 5.654196138493717e-05,
+      "n_planner_actions": 2,
+      "n_safety_kernel_decisions": 2
+    }
+  ],
+  "safety_vs_utility_tradeoff": [
+    {
+      "scenario": "simulation / perturbed (obstacle recovery)",
+      "task_success": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00016337601118721068
+    },
+    {
+      "scenario": "real_robot / perturbed (obstacle recovery)",
+      "task_success": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00012216504546813667
+    },
+    {
+      "scenario": "high_safety / perturbed (obstacle recovery)",
+      "task_success": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 0.00015524995978921652
+    },
+    {
+      "scenario": "real_robot / escalation (approved)",
+      "task_success": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 8.479197276756167e-05
+    },
+    {
+      "scenario": "real_robot / escalation (rejected)",
+      "task_success": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 6.0457998188212514e-05
+    },
+    {
+      "scenario": "high_safety / escalation (approved)",
+      "task_success": true,
+      "unsafe_execution": false,
+      "cumulative_latency": 7.541701779700816e-05
+    },
+    {
+      "scenario": "high_safety / escalation (rejected)",
+      "task_success": false,
+      "unsafe_execution": false,
+      "cumulative_latency": 5.654196138493717e-05
+    }
+  ],
+  "note": "Deterministic by design (no RNG anywhere in this script) - one real run per condition, matching Experiment 6's precedent; statistical volume across randomized task instances is already established by Experiments 1/7/8/10/11/19 and isn't re-derived here. The central finding: normal-condition task_success is 1.0 across every profile (governance costs nothing when nothing goes wrong), but perturbed-condition recovery degrades as profile strictness increases - high_safety's collision margin (0.5m) approaches its own workspace half-width (0.5m), making nudge-based recovery geometrically infeasible within its bounds (the nudge candidate itself gets rejected for a workspace violation, not collision) - task_success drops to 0 there while unsafe_execution_rate stays 0 throughout every scenario in this experiment. Likewise, rejecting a high-risk escalation trades task completion for a guaranteed-safe outcome (unsafe_execution never occurs) rather than trading away safety itself - PAR's governance never lets an unsafe or unapproved action through, the cost of stricter policy shows up entirely as lost utility (completion, latency), never as reduced safety."
+}
