@@ -1,0 +1,321 @@
+{
+  "experiment": "21_long_horizon_task_evaluation",
+  "horizon_levels": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "n_trials_per_horizon": 15,
+  "obstacle_period": 5,
+  "results_by_horizon": {
+    "5": {
+      "n_trials": 15,
+      "expected_denials_by_construction": 1,
+      "task_success_rate": 1.0,
+      "mean_denials": 1,
+      "mean_repeated_denials": 0,
+      "mean_recoveries": 1,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.00024370578854965668,
+        "median": 0.00020116695668548346,
+        "stdev": 0.0001399297194295252,
+        "ci95_half_width": 7.081420847069694e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "sample_trajectory_first_12_steps": [
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        }
+      ]
+    },
+    "10": {
+      "n_trials": 15,
+      "expected_denials_by_construction": 2,
+      "task_success_rate": 1.0,
+      "mean_denials": 3,
+      "mean_repeated_denials": 1,
+      "mean_recoveries": 2,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.0003756031879068663,
+        "median": 0.0003777919919230044,
+        "stdev": 2.4389416894932313e-05,
+        "ci95_half_width": 1.2342747913150265e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "sample_trajectory_first_12_steps": [
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        }
+      ]
+    },
+    "20": {
+      "n_trials": 15,
+      "expected_denials_by_construction": 4,
+      "task_success_rate": 1.0,
+      "mean_denials": 6,
+      "mean_repeated_denials": 2,
+      "mean_recoveries": 4,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.0007957204613679399,
+        "median": 0.0008224590274039656,
+        "stdev": 8.519541835716305e-05,
+        "ci95_half_width": 4.3114830365474244e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "sample_trajectory_first_12_steps": [
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        }
+      ]
+    },
+    "50": {
+      "n_trials": 15,
+      "expected_denials_by_construction": 10,
+      "task_success_rate": 1.0,
+      "mean_denials": 15,
+      "mean_repeated_denials": 5,
+      "mean_recoveries": 10,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.0023342095975143213,
+        "median": 0.00223607785301283,
+        "stdev": 0.0003673045042001997,
+        "ci95_half_width": 0.00018588172575990117
+      },
+      "unsafe_execution_rate": 0.0,
+      "sample_trajectory_first_12_steps": [
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        }
+      ]
+    },
+    "100": {
+      "n_trials": 15,
+      "expected_denials_by_construction": 20,
+      "task_success_rate": 1.0,
+      "mean_denials": 30,
+      "mean_repeated_denials": 10,
+      "mean_recoveries": 20,
+      "cumulative_latency": {
+        "n": 15,
+        "mean": 0.005028525301410506,
+        "median": 0.005027334933402017,
+        "stdev": 5.0682272975968266e-05,
+        "ci95_half_width": 2.5648768960024805e-05
+      },
+      "unsafe_execution_rate": 0.0,
+      "sample_trajectory_first_12_steps": [
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "allow"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        },
+        {
+          "skill": "move",
+          "safety_decision": "deny"
+        }
+      ]
+    }
+  },
+  "note": "Denials and recoveries are engineered by construction (an obstacle placed exactly on every OBSTACLE_PERIOD-th waypoint, with every other one of those made 'hard' via a second obstacle at its first nudge candidate), so mean_recoveries scales exactly as floor(H/5), mean_denials as 1.5x that (half the blocked waypoints cost 1 denial, half cost 2), and task_success_rate stays at 1.0 across all horizons up to 100 - this demonstrates that PAR's denial->feedback->replan loop composes correctly over long trajectories without state leaking between waypoints (cumulative_latency grows linearly with H, confirming no quadratic blowup), not that recovery is unconditionally guaranteed at arbitrary horizon or against adversarial obstacle placement (that question belongs to Experiments 10 and 20)."
+}
