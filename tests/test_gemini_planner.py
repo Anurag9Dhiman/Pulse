@@ -88,6 +88,21 @@ def test_chat_created_with_tools_including_task_complete():
     assert config["automatic_function_calling"]["disable"] is True
 
 
+def test_task_complete_declaration_requires_explicit_success_field():
+    # Experiment 22: the model must state success/failure explicitly, not
+    # just leave a free-text message the runtime would have to guess about.
+    response = FakeGeminiResponse(function_calls=[FakeFunctionCall(name="pick", args={"object": "red_object"})])
+    client = FakeClient(FakeChat([response]))
+    planner = GeminiPlanner(client)
+
+    planner.propose("pick the red object", _observation(), _capabilities())
+
+    declarations = {d["name"]: d for d in client.chats.create_calls[0]["config"]["tools"][0]["function_declarations"]}
+    task_complete_schema = declarations[TASK_COMPLETE]["parameters"]
+    assert "success" in task_complete_schema["properties"]
+    assert "success" in task_complete_schema["required"]
+
+
 def test_missing_function_call_raises_planner_error():
     response = FakeGeminiResponse(function_calls=[])
     chat = FakeChat([response])

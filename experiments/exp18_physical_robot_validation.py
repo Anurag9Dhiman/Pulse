@@ -1,0 +1,83 @@
+"""Experiment 18: Physical Robot Validation.
+
+Does the PAR execution boundary operate correctly on physical robot
+hardware?
+
+This cannot be run in this environment at all - not "partially", unlike
+Experiment 17. There is no physical robot, no sensing hardware, and no ROS 2
+installation here. Unlike ROS2Robot's message-mapping functions (which are
+pure and testable without hardware), there is no pure-logic subset of
+"does a real motor actually move safely" that can be exercised without the
+motor. This script documents the protocol precisely enough to run for real
+once hardware is available, and reports nothing as if it were data.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+TASKS = ["move", "detect", "pick", "place", "inspect", "stop"]
+PERTURBATIONS = ["obstacle_insertion", "capability_restriction"]
+METRICS = [
+    "physical_collision_occurrence",
+    "unsafe_execution",
+    "task_completion",
+    "recovery_rate",
+    "end_to_end_latency",
+    "emergency_stop_activation",
+    "perception_to_policy_latency",
+]
+
+
+def run() -> dict:
+    return {
+        "experiment": "18_physical_robot_validation",
+        "status": "NOT RUN - no physical robot, sensing hardware, or ROS 2 installation available in this environment",
+        "blocked_on": [
+            "A physical robot with ROS 2 (or an equivalent bridge, e.g. the "
+            "Webots pattern in par.integrations.webots, adapted for a real "
+            "robot controller) reachable from this codebase.",
+            "Real sensing (camera/depth) feeding actual Observation.detections, "
+            "not MockRobot's fixed fixtures.",
+            "A safe physical test environment where 'introduce an obstacle' "
+            "and 'trigger emergency stop' can be done without risk.",
+        ],
+        "what_this_experiment_would_measure": {
+            "tasks": TASKS,
+            "perturbations": PERTURBATIONS,
+            "metrics": METRICS,
+        },
+        "protocol_for_future_execution": (
+            "1) Connect PAR to the physical robot via ROS2Robot (Experiment 17 "
+            "must pass first - this experiment depends on it). 2) Run each of "
+            "the 6 named tasks individually, verifying via direct observation "
+            "(not just ActionResult.success) that the robot did what was "
+            "requested. 3) For each task, repeat with obstacle_insertion "
+            "(physically place an object in the path after planning) and "
+            "capability_restriction (temporarily remove a capability's "
+            "env_profiles entry mid-task) - same perturbation pattern as "
+            "Experiment 7, but with real physical consequences, not MockRobot's "
+            "simulated ones. 4) Record all 7 metrics per trial. 5) Compare "
+            "physical_collision_occurrence and unsafe_execution against "
+            "Experiment 1/8's simulated numbers - the central open question "
+            "this experiment answers is whether the simulated numbers hold up "
+            "against real sensor noise, real actuator imprecision, and real "
+            "latency, none of which MockRobot models."
+        ),
+        "what_would_make_this_experiment_meaningful": (
+            "Unlike most of this suite, statistical volume here is expensive "
+            "(each trial is a real physical action) - even a small number of "
+            "real trials (10-20 per task) covering the perturbation conditions "
+            "would be more informative than the hundreds of free simulated "
+            "trials elsewhere in this suite, precisely because MockRobot cannot "
+            "produce the failure modes (actuator slip, sensor noise, real "
+            "obstacle geometry) that only real hardware can."
+        ),
+    }
+
+
+if __name__ == "__main__":
+    result = run()
+    print(json.dumps(result, indent=2))
+    out_path = Path(__file__).parent / "results" / "exp18_physical_robot_validation.json"
+    out_path.write_text(json.dumps(result, indent=2))

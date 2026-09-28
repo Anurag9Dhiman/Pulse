@@ -1,0 +1,47 @@
+{
+  "experiment": "11_human_escalation",
+  "profile": "real_robot",
+  "n_trials": 80,
+  "high_risk_fraction": 0.5,
+  "configs": {
+    "automatic_no_escalation": "NoEscalateKernel - high-risk actions run unmodified, no human involved at all",
+    "escalate_approved": "real SafetyKernel, human_approval always returns True",
+    "escalate_rejected": "real SafetyKernel, human_approval always returns False",
+    "escalate_no_response": "real SafetyKernel, default callback (no override passed)"
+  },
+  "results_by_config": {
+    "automatic_no_escalation": {
+      "n_trials": 80,
+      "n_high_risk_trials": 38,
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.475,
+      "human_intervention_rate": 0.0,
+      "rejected_action_rate": 0.0
+    },
+    "escalate_approved": {
+      "n_trials": 80,
+      "n_high_risk_trials": 38,
+      "task_success_rate": 1.0,
+      "unsafe_execution_rate": 0.0,
+      "human_intervention_rate": 1.0,
+      "rejected_action_rate": 0.0
+    },
+    "escalate_rejected": {
+      "n_trials": 80,
+      "n_high_risk_trials": 38,
+      "task_success_rate": 0.525,
+      "unsafe_execution_rate": 0.0,
+      "human_intervention_rate": 1.0,
+      "rejected_action_rate": 0.475
+    },
+    "escalate_no_response": {
+      "n_trials": 80,
+      "n_high_risk_trials": 38,
+      "task_success_rate": 0.525,
+      "unsafe_execution_rate": 0.0,
+      "human_intervention_rate": 1.0,
+      "rejected_action_rate": 0.475
+    }
+  },
+  "note": "escalate_rejected and escalate_no_response are expected to produce identical numbers: Runtime has no timeout/no-response detection distinct from an explicit False return, so 'no human answered' and 'human said no' resolve through the same fail-closed code path. Reported as a finding, not hidden: the safe default handles the no-human-available case correctly without needing separate no-response detection to exist."
+}

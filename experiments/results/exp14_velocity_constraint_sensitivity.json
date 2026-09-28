@@ -1,0 +1,151 @@
+{
+  "experiment": "14_velocity_constraint_sensitivity",
+  "max_velocity": 0.5,
+  "action_timeout_seconds": 1.0,
+  "max_reachable_distance": 0.5,
+  "rows": [
+    {
+      "requested_distance": 0.1,
+      "violates_velocity_limit": false,
+      "deny_only": {
+        "resulting_distance": 0.1,
+        "made_progress": true
+      },
+      "par_modify": {
+        "outcome": "allow",
+        "resulting_distance": 0.1,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.1,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 0.3,
+      "violates_velocity_limit": false,
+      "deny_only": {
+        "resulting_distance": 0.3,
+        "made_progress": true
+      },
+      "par_modify": {
+        "outcome": "allow",
+        "resulting_distance": 0.3,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.3,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 0.45,
+      "violates_velocity_limit": false,
+      "deny_only": {
+        "resulting_distance": 0.45,
+        "made_progress": true
+      },
+      "par_modify": {
+        "outcome": "allow",
+        "resulting_distance": 0.45,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.45,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 0.5,
+      "violates_velocity_limit": false,
+      "deny_only": {
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "par_modify": {
+        "outcome": "allow",
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.5,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 0.6,
+      "violates_velocity_limit": true,
+      "deny_only": {
+        "resulting_distance": 0.0,
+        "made_progress": false
+      },
+      "par_modify": {
+        "outcome": "modify",
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.6,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 0.8,
+      "violates_velocity_limit": true,
+      "deny_only": {
+        "resulting_distance": 0.0,
+        "made_progress": false
+      },
+      "par_modify": {
+        "outcome": "modify",
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 0.8,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 1.2,
+      "violates_velocity_limit": true,
+      "deny_only": {
+        "resulting_distance": 0.0,
+        "made_progress": false
+      },
+      "par_modify": {
+        "outcome": "modify",
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 1.2,
+        "made_progress": true
+      }
+    },
+    {
+      "requested_distance": 1.8,
+      "violates_velocity_limit": true,
+      "deny_only": {
+        "resulting_distance": 0.0,
+        "made_progress": false
+      },
+      "par_modify": {
+        "outcome": "modify",
+        "resulting_distance": 0.5,
+        "made_progress": true
+      },
+      "unconstrained": {
+        "resulting_distance": 1.8,
+        "made_progress": true
+      }
+    }
+  ],
+  "summary": {
+    "deny_only_task_progress_rate": 0.5,
+    "par_modify_task_progress_rate": 1.0,
+    "unconstrained_task_progress_rate": 1.0,
+    "par_modify_safety_violations": 0,
+    "unconstrained_safety_violations": 4
+  }
+}

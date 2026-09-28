@@ -1,0 +1,27 @@
+{
+  "experiment": "3_safety_denial_and_replanning",
+  "profile": "strict_simulation",
+  "n_trials": 200,
+  "n_trials_with_denial": 133,
+  "n_trials_without_denial": 67,
+  "recovery_rate": 1.0,
+  "final_task_success_rate_overall": 1.0,
+  "replanning_steps_when_denied": {
+    "n": 133,
+    "mean": 1.8421052631578947,
+    "median": 2,
+    "stdev": 0.8150302584377215,
+    "ci95_half_width": 0.13851728906081298
+  },
+  "denials_per_successful_task": {
+    "n": 133,
+    "mean": 1.8421052631578947,
+    "median": 2,
+    "stdev": 0.8150302584377215,
+    "ci95_half_width": 0.13851728906081298
+  },
+  "notes": [
+    "Uses a deterministic rule-based re-planner for statistical volume, not a live LLM - see recovering_planner.py docstring. Live LLM re-planning (Gemini) is validated qualitatively with a real example in the paper, not re-run here at volume to avoid spending API quota reconfirming an already-established result.",
+    "recovery_rate=1.0 here reflects this scenario's geometry, not a general guarantee: the planner's max cumulative nudge (6 x its step) comfortably exceeds the obstacle's randomized offset range, so eventual recovery is close to guaranteed by construction. Whether recovery holds under harder conditions (larger/multiple obstacles, tighter workspace) is what Experiments 7 and 20 stress-test, not a claim made here."
+  ]
+}

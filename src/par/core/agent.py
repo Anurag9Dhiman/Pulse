@@ -27,6 +27,8 @@ class Agent:
     def set_goal(self, goal: str) -> None:
         self.state.goal = goal
         self.state.status = AgentStatus.PLANNING
+        self.state.completion_message = None
+        self.state.reported_success = None
         self.planner.reset()
 
     def propose_action(self, observation: Observation) -> Action | None:
@@ -38,6 +40,10 @@ class Agent:
         )
         if skill_name == TASK_COMPLETE:
             self.state.status = AgentStatus.DONE
+            self.state.completion_message = parameters.get("message")
+            # Older scripted/test planners may omit "success"; absence means
+            # "the planner didn't say otherwise", not "it failed" - default True.
+            self.state.reported_success = bool(parameters.get("success", True))
             return None
         skill = self.skill_registry.get(skill_name)
         action = skill.build_action(parameters)

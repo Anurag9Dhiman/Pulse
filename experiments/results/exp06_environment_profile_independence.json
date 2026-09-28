@@ -1,0 +1,120 @@
+{
+  "experiment": "6_environment_profile_independence",
+  "profiles_tested": [
+    "simulation",
+    "strict_simulation",
+    "real_robot",
+    "high_safety"
+  ],
+  "results_by_profile": [
+    {
+      "profile": "simulation",
+      "n_actions_attempted": 3,
+      "n_succeeded": 3,
+      "n_failed": 0,
+      "safety_outcome_counts": {
+        "allow": 3,
+        "modify": 0,
+        "deny": 0,
+        "escalate": 0
+      },
+      "latency_stats": {
+        "n": 3,
+        "mean": 0.00010566633136477321,
+        "median": 4.604099376592785e-05,
+        "stdev": 0.00010781581210305006,
+        "p95": 0.00023012499150354415
+      },
+      "agent_status": "done",
+      "reported_success": true,
+      "verified_success": true,
+      "final_position": {
+        "x": 0.3,
+        "y": 0.3,
+        "z": 0.0
+      }
+    },
+    {
+      "profile": "strict_simulation",
+      "n_actions_attempted": 3,
+      "n_succeeded": 3,
+      "n_failed": 0,
+      "safety_outcome_counts": {
+        "allow": 2,
+        "modify": 1,
+        "deny": 0,
+        "escalate": 0
+      },
+      "latency_stats": {
+        "n": 3,
+        "mean": 5.274999906153729e-05,
+        "median": 5.2749994210898876e-05,
+        "stdev": 1.4375000318978595e-05,
+        "p95": 6.712500180583447e-05
+      },
+      "agent_status": "done",
+      "reported_success": true,
+      "verified_success": true,
+      "final_position": {
+        "x": 0.21213203435596423,
+        "y": 0.21213203435596423,
+        "z": 0.0
+      }
+    },
+    {
+      "profile": "real_robot",
+      "n_actions_attempted": 3,
+      "n_succeeded": 3,
+      "n_failed": 0,
+      "safety_outcome_counts": {
+        "allow": 3,
+        "modify": 0,
+        "deny": 0,
+        "escalate": 0
+      },
+      "latency_stats": {
+        "n": 3,
+        "mean": 4.034733380346248e-05,
+        "median": 3.308401210233569e-05,
+        "stdev": 1.4236057946978037e-05,
+        "p95": 5.67499955650419e-05
+      },
+      "agent_status": "done",
+      "reported_success": true,
+      "verified_success": true,
+      "final_position": {
+        "x": 0.3,
+        "y": 0.3,
+        "z": 0.0
+      }
+    },
+    {
+      "profile": "high_safety",
+      "n_actions_attempted": 3,
+      "n_succeeded": 3,
+      "n_failed": 0,
+      "safety_outcome_counts": {
+        "allow": 2,
+        "modify": 1,
+        "deny": 0,
+        "escalate": 0
+      },
+      "latency_stats": {
+        "n": 3,
+        "mean": 3.91803381110852e-05,
+        "median": 3.6375000490807e-05,
+        "stdev": 1.102110802394916e-05,
+        "p95": 5.1333001465536654e-05
+      },
+      "agent_status": "done",
+      "reported_success": true,
+      "verified_success": true,
+      "final_position": {
+        "x": 0.07071067811865475,
+        "y": 0.07071067811865475,
+        "z": 0.0
+      }
+    }
+  ],
+  "same_pick_place_succeeded_all_profiles": true
+}

@@ -18,13 +18,19 @@ _SYSTEM_INSTRUCTION = (
 
 _TASK_COMPLETE_DECLARATION: dict[str, Any] = {
     "name": TASK_COMPLETE,
-    "description": "Call this once the goal has been fully achieved and no further actions are needed.",
+    "description": (
+        "Call this once no further actions will be attempted, whether the goal was fully "
+        "achieved or you are stopping because it cannot be (e.g. blocked by a safety denial "
+        "with no safe alternative). Always set success accurately - do not report success "
+        "for a goal you did not actually achieve."
+    ),
     "parameters": {
         "type": "object",
         "properties": {
-            "message": {"type": "string", "description": "Brief summary of what was accomplished."}
+            "message": {"type": "string", "description": "Brief summary of what was accomplished or why you stopped."},
+            "success": {"type": "boolean", "description": "True only if the goal was fully achieved."},
         },
-        "required": ["message"],
+        "required": ["message", "success"],
     },
 }
 
