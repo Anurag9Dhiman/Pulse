@@ -1,5 +1,6 @@
 """PAR driving a real physically-simulated robot (Webots e-puck) instead of
-MockRobot, so `move` and the Safety Kernel's behavior can be watched live.
+MockRobot, so `move`, the Safety Kernel's behavior, and a real use_computer
+delegation to CollectiveOS can all be watched live.
 
 Requires:
     pip install -e ".[webots]"
@@ -9,6 +10,15 @@ And, running beforehand (see Reach/webots/README.md):
     1. Webots open on Reach/webots/worlds/par_arena.wbt, simulation running.
     2. Reach/webots/controllers/par_bridge/par_bridge.py running in its own
        terminal (with WEBOTS_HOME set) - it waits for this script to connect.
+
+The last two steps below delegate to CollectiveOS via use_computer, wrapped
+in ComputerAugmentedRobot. WebotsRobot.begin_/end_computer_use() drive the
+e-puck to the world's "laptop" prop and light an LED for the delegation's
+duration (see webots/README.md's "symbolic docking" note - the e-puck has no
+arm, so this makes the digital hand-off visible in the sim without literally
+typing on anything) - CollectiveOS does not need to be running for the
+physical docking to happen; if it isn't, run_task simply comes back as a
+failed ActionResult and the robot still undocks and continues.
 
 No API key needed - uses a small scripted planner rather than the default
 RuleBasedPlanner, because RuleBasedPlanner._extract_params("move", ...)
@@ -28,10 +38,11 @@ from par.core.observation import Observation
 from par.core.planner import TASK_COMPLETE, Planner
 from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
+from par.robots.computer_bridge import ComputerAugmentedRobot
 from par.robots.webots_bridge import WebotsRobot
 from par.safety.environment import load_profile
 from par.safety.kernel import SafetyKernel
-from par.skills import builtin_skills
+from par.skills import builtin_skills, computer_use_skill
 
 # e-puck's real driving speed is much slower than simulation.yaml's 5s
 # action_timeout_seconds assumes for an instant MockRobot move - override it
@@ -49,8 +60,12 @@ _STEPS: list[tuple[str, dict[str, Any]]] = [
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1] + 0.4, "z": 0.0}),  # near red_object: allowed
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1], "z": 0.0}),  # onto red_object: denied (collision)
     ("move", {"x": _BLUE_CONTAINER[0], "y": _BLUE_CONTAINER[1] + 0.4, "z": 0.0}),  # near blue_container: allowed
+    # Physical task done - now delegate a digital subtask. Watch the e-puck
+    # drive to the laptop prop and its LED light up for this step; whether
+    # CollectiveOS itself succeeds depends on whether it's actually running.
+    ("use_computer", {"task": "check whether any maintenance alerts are open"}),
     ("stop", {}),
-    (TASK_COMPLETE, {"message": "toured the arena"}),
+    (TASK_COMPLETE, {"message": "toured the arena and delegated a digital subtask"}),
 ]
 
 
@@ -71,8 +86,9 @@ def main() -> None:
         if skill.name == "move":
             skill.capability.execution_timeout_seconds = _MOVE_TIMEOUT_SECONDS
         registry.register(skill)
+    registry.register(computer_use_skill())
 
-    robot = WebotsRobot()
+    robot = ComputerAugmentedRobot(WebotsRobot())
     agent = Agent(registry, planner=_ScriptedPlanner(_STEPS))
     safety = SafetyKernel(load_profile("simulation"))
     runtime = Runtime(agent, robot, safety_kernel=safety)

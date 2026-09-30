@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from par.core.action import Action, ActionResult
 from par.core.observation import Observation
@@ -33,3 +34,15 @@ class WebotsRobot(RobotInterface):
             message=reply["message"],
             completed_at=datetime.now(timezone.utc),
         )
+
+    def begin_computer_use(self) -> None:
+        """Best-effort: drive to the world's "laptop" prop and light an LED,
+        so a use_computer delegation is visible in the simulation, not just a
+        WebSocket call happening invisibly off to the side. Never raises and
+        its result is not checked - a missing prop or unresponsive bridge
+        must never block the actual (safety-relevant) computer-use call this
+        wraps, only skip its physical visualization."""
+        self._bridge.send_action({"action_id": str(uuid4()), "skill_name": "dock_at_computer", "parameters": {}})
+
+    def end_computer_use(self) -> None:
+        self._bridge.send_action({"action_id": str(uuid4()), "skill_name": "undock_from_computer", "parameters": {}})
