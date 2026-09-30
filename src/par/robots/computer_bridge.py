@@ -23,5 +23,20 @@ class ComputerAugmentedRobot(RobotInterface):
     def execute(self, action: Action) -> ActionResult:
         if action.skill_name != _COMPUTER_USE_SKILL:
             return self._robot.execute(action)
+
+        # Optional hook: robots that can physically represent "at the
+        # computer" (e.g. WebotsRobot docking near a laptop prop) implement
+        # begin_/end_computer_use(); robots that can't (MockRobot, ROS2Robot)
+        # simply don't have the attribute, so this is a no-op for them.
+        begin_computer_use = getattr(self._robot, "begin_computer_use", None)
+        if begin_computer_use is not None:
+            begin_computer_use()
+
         task = action.parameters.get("task", "")
-        return self._bridge.run_task(action, task, timeout=DEFAULT_TIMEOUT_SECONDS)
+        result = self._bridge.run_task(action, task, timeout=DEFAULT_TIMEOUT_SECONDS)
+
+        end_computer_use = getattr(self._robot, "end_computer_use", None)
+        if end_computer_use is not None:
+            end_computer_use()
+
+        return result

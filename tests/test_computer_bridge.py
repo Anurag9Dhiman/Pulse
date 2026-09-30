@@ -69,6 +69,56 @@ def test_computer_augmented_robot_delegates_get_observation():
     assert observation.source == "mock"
 
 
+class _RobotWithDockHooks(MockRobot):
+    """Stands in for WebotsRobot, which implements these hooks to drive to a
+    laptop prop and light an LED - see robots/webots_bridge.py."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.calls: list[str] = []
+
+    def begin_computer_use(self) -> None:
+        self.calls.append("begin")
+
+    def end_computer_use(self) -> None:
+        self.calls.append("end")
+
+
+def test_computer_augmented_robot_calls_dock_hooks_around_delegation_when_present():
+    robot_impl = _RobotWithDockHooks()
+    robot = ComputerAugmentedRobot(robot_impl, bridge=_FakeBridge())
+
+    result = robot.execute(_action("use_computer", {"task": "look up today's date"}))
+
+    assert result.success is True
+    assert robot_impl.calls == ["begin", "end"]
+
+
+def test_computer_augmented_robot_calls_end_hook_even_when_delegation_fails():
+    class _FailingBridge:
+        def run_task(self, action: Action, task: str, timeout: float) -> ActionResult:
+            return ActionResult(
+                action_id=action.action_id, success=False, message="nope", completed_at=datetime.now(timezone.utc)
+            )
+
+    robot_impl = _RobotWithDockHooks()
+    robot = ComputerAugmentedRobot(robot_impl, bridge=_FailingBridge())
+
+    result = robot.execute(_action("use_computer", {"task": "look up today's date"}))
+
+    assert result.success is False
+    assert robot_impl.calls == ["begin", "end"]
+
+
+def test_computer_augmented_robot_skips_dock_hooks_when_wrapped_robot_lacks_them():
+    # MockRobot has no begin_/end_computer_use - must not raise AttributeError.
+    robot = ComputerAugmentedRobot(MockRobot(), bridge=_FakeBridge())
+
+    result = robot.execute(_action("use_computer", {"task": "look up today's date"}))
+
+    assert result.success is True
+
+
 def test_use_computer_is_admitted_under_both_profiles_and_escalates_when_approval_required():
     from par.safety.environment import load_profile
     from par.safety.kernel import SafetyKernel

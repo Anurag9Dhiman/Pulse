@@ -72,3 +72,37 @@ def test_execute_reports_failure_from_bridge():
 
     assert result.success is False
     assert result.message == "Webots bridge connection failed"
+
+
+def test_begin_computer_use_sends_dock_action():
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "docked near 'laptop'"})
+    robot = WebotsRobot(bridge=bridge)
+
+    robot.begin_computer_use()
+
+    assert len(bridge.sent_actions) == 1
+    sent = bridge.sent_actions[0]
+    assert sent["skill_name"] == "dock_at_computer"
+    assert sent["parameters"] == {}
+    assert "action_id" in sent  # a fresh id - this call has no originating PAR Action
+
+
+def test_end_computer_use_sends_undock_action():
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "undocked from computer"})
+    robot = WebotsRobot(bridge=bridge)
+
+    robot.end_computer_use()
+
+    assert len(bridge.sent_actions) == 1
+    assert bridge.sent_actions[0]["skill_name"] == "undock_from_computer"
+
+
+def test_dock_hooks_never_raise_even_if_bridge_reports_failure():
+    # begin_/end_computer_use's result is intentionally not checked by callers
+    # (see ComputerAugmentedRobot) - a docking failure must never surface as
+    # an exception that could block the actual use_computer delegation.
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": False, "message": "'laptop' prop not found"})
+    robot = WebotsRobot(bridge=bridge)
+
+    robot.begin_computer_use()
+    robot.end_computer_use()
