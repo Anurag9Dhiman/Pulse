@@ -17,6 +17,11 @@ protocol (plain JSON):
      "parameters": {"button": "check" | "confirm" | "clear"}}
         -> {"success": bool, "message": str}
 
+    {"type": "action", "action_id": ..., "skill_name": "capture_camera",
+     "parameters": {}}
+        -> {"success": bool, "message": str}  # message is the saved JPEG's
+                                               # path on success
+
 Configuration (env var):
     COMPUTER_ARM_BRIDGE_URL   e.g. ws://localhost:6002 (default)
 """
@@ -51,6 +56,21 @@ class ComputerArmBridge:
         if error:
             return {"success": False, "message": error}
         return {"success": bool(reply.get("success", False)), "message": reply.get("message", "")}
+
+    def capture_camera_snapshot(self, timeout: float = 10.0) -> dict:
+        """Never raises: a failure comes back as an empty path with the
+        reason in `raw.error`, matching get_observation_payload's convention.
+        The path is on the computer_arm_bridge.py side (same machine as this
+        process in every setup used so far, including Webots itself) - the
+        caller reads it directly rather than this bridge shipping bytes
+        over the wire."""
+        payload = {"action_id": str(uuid4()), "skill_name": "capture_camera", "parameters": {}}
+        reply, error = self._request({"type": "action", **payload}, timeout)
+        if error:
+            return {"path": "", "raw": {"error": error}}
+        if not reply.get("success", False):
+            return {"path": "", "raw": {"error": reply.get("message", "")}}
+        return {"path": reply.get("message", "")}
 
     def _request(self, message: dict, timeout: float) -> tuple[dict, str]:
         try:

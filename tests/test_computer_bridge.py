@@ -7,6 +7,7 @@ from par.core.capability import RiskLevel
 from par.core.observation import Observation
 from par.integrations.collectiveos import CollectiveOSBridge
 from par.integrations.simulated_arm_computer_use import SimulatedArmBridge
+from par.integrations.vision_guided_arm import VisionGuidedArmBridge
 from par.robots.computer_bridge import ComputerAugmentedRobot, _default_bridge
 from par.robots.mock import MockRobot
 from par.skills.computer_use import DEFAULT_TIMEOUT_SECONDS, computer_use_skill
@@ -147,6 +148,11 @@ def test_default_bridge_is_collectiveos_when_mode_unset(monkeypatch):
 def test_default_bridge_is_simulated_arm_when_mode_set(monkeypatch):
     monkeypatch.setenv("PAR_COMPUTER_USE_MODE", "simulated_arm")
     assert isinstance(_default_bridge(), SimulatedArmBridge)
+
+
+def test_default_bridge_is_vision_guided_arm_when_mode_set(monkeypatch):
+    monkeypatch.setenv("PAR_COMPUTER_USE_MODE", "vision_guided_arm")
+    assert isinstance(_default_bridge(), VisionGuidedArmBridge)
 
 
 def test_computer_augmented_robot_uses_env_selected_default_when_no_bridge_given(monkeypatch):
