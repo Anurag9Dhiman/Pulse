@@ -1,24 +1,30 @@
-"""PAR driving a real physically-simulated robot (Webots e-puck) instead of
-MockRobot, so `move`, the Safety Kernel's behavior, and a real use_computer
-delegation to CollectiveOS can all be watched live.
+"""PAR driving a Franka Emika Panda arm in MuJoCo (instead of MockRobot) so
+`move`, the Safety Kernel's behavior, and a real use_computer delegation to
+CollectiveOS can all be watched live.
+
+Replaces examples/webots_loop.py as the project's physical-simulation
+example. Same tour-and-delegate shape (detect -> near red -> collision
+denial -> near blue -> use_computer -> stop -> task_complete), only the
+simulator and robot change: a 7-DOF arm swings to each target instead of
+an e-puck rolling to it, and the dock-at-computer step moves the arm's
+end-effector to the laptop prop instead of lighting an LED.
 
 Requires:
-    pip install -e ".[webots]"
-    WEBOTS_BRIDGE_URL (optional) - default ws://localhost:6001
+    pip install -e ".[mujoco]"
+    MUJOCO_BRIDGE_URL (optional) - default ws://localhost:6003
 
-And, running beforehand (see Reach/webots/README.md):
-    1. Webots open on Reach/webots/worlds/par_arena.wbt, simulation running.
-    2. Reach/webots/controllers/par_bridge/par_bridge.py running in its own
-       terminal (with WEBOTS_HOME set) - it waits for this script to connect.
+And, running beforehand (see Reach/mujoco/README.md):
+    1. Reach/mujoco/bridge/mujoco_bridge.py running in its own terminal.
+       Interactive mode (what shows the arena): launch with `mjpython ...`,
+       not plain `python`, on macOS; headless mode (--headless) works with
+       plain `python` and is used by CI.
 
-The last two steps below delegate to CollectiveOS via use_computer, wrapped
-in ComputerAugmentedRobot. WebotsRobot.begin_/end_computer_use() drive the
-e-puck to the world's "laptop" prop and light an LED for the delegation's
-duration (see webots/README.md's "symbolic docking" note - the e-puck has no
-arm, so this makes the digital hand-off visible in the sim without literally
-typing on anything) - CollectiveOS does not need to be running for the
-physical docking to happen; if it isn't, run_task simply comes back as a
-failed ActionResult and the robot still undocks and continues.
+The last two tour steps delegate to CollectiveOS via use_computer, wrapped
+in ComputerAugmentedRobot. MuJoCoRobot.begin_/end_computer_use() drive the
+arm's end-effector to the simulated laptop prop and back - CollectiveOS
+does not need to be running for the physical docking to happen; if it isn't,
+run_task simply comes back as a failed ActionResult and the robot still
+undocks and continues.
 
 No API key needed - uses a small scripted planner rather than the default
 RuleBasedPlanner, because RuleBasedPlanner._extract_params("move", ...)
@@ -27,7 +33,7 @@ always returns (0.0, 0.0, 0.0) (see par/core/planner.py); it can't turn
 below target real arena coordinates instead, including one move placed
 exactly on top of red_object so the Safety Kernel's collision-margin check
 denies it live - the same Use Case 4 behavior examples/safety_demo.py shows
-against MockRobot, now against a real simulated robot.
+against MockRobot, now against a real simulated arm.
 """
 from datetime import datetime, timezone
 from typing import Any
@@ -39,19 +45,18 @@ from par.core.planner import TASK_COMPLETE, Planner
 from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
 from par.robots.computer_bridge import ComputerAugmentedRobot
-from par.robots.webots_bridge import WebotsRobot
+from par.robots.mujoco_bridge import MuJoCoRobot
 from par.safety.environment import load_profile
 from par.safety.kernel import SafetyKernel
 from par.skills import builtin_skills, computer_use_skill
 
-# e-puck's real driving speed is much slower than simulation.yaml's 5s
-# action_timeout_seconds assumes for an instant MockRobot move - override it
-# for this example only, via the same per-capability mechanism used for
-# use_computer. builtin.py's default stays correct for MockRobot.
+# The Panda's joint-space moves take 1-2s in the viewer (real-time pacing)
+# versus the ~5s simulation.yaml allows for an instant MockRobot move -
+# override as e-puck's example does, same per-capability mechanism.
 _MOVE_TIMEOUT_SECONDS = 20.0
 
 # Arena coordinates match MockRobot's defaults (par/robots/mock.py) and
-# Reach/webots/worlds/par_arena.wbt's object placement.
+# the authored positions in Reach/mujoco/scenes/par_arena.py.
 _RED_OBJECT = (0.5, 0.2, 0.0)
 _BLUE_CONTAINER = (-0.3, 0.4, 0.0)
 
@@ -60,9 +65,9 @@ _STEPS: list[tuple[str, dict[str, Any]]] = [
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1] + 0.4, "z": 0.0}),  # near red_object: allowed
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1], "z": 0.0}),  # onto red_object: denied (collision)
     ("move", {"x": _BLUE_CONTAINER[0], "y": _BLUE_CONTAINER[1] + 0.4, "z": 0.0}),  # near blue_container: allowed
-    # Physical task done - now delegate a digital subtask. Watch the e-puck
-    # drive to the laptop prop and its LED light up for this step; whether
-    # CollectiveOS itself succeeds depends on whether it's actually running.
+    # Physical task done - now delegate a digital subtask. Watch the arm's
+    # end-effector move to the laptop prop; whether CollectiveOS itself
+    # succeeds depends on whether it's actually running.
     ("use_computer", {"task": "check whether any maintenance alerts are open"}),
     ("stop", {}),
     (TASK_COMPLETE, {"message": "toured the arena and delegated a digital subtask"}),
@@ -88,7 +93,7 @@ def main() -> None:
         registry.register(skill)
     registry.register(computer_use_skill())
 
-    robot = ComputerAugmentedRobot(WebotsRobot())
+    robot = ComputerAugmentedRobot(MuJoCoRobot())
     agent = Agent(registry, planner=_ScriptedPlanner(_STEPS))
     safety = SafetyKernel(load_profile("simulation"))
     runtime = Runtime(agent, robot, safety_kernel=safety)

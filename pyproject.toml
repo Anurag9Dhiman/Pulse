@@ -35,8 +35,10 @@ camera = [
 computer = [
     "websockets>=12",
 ]
-webots = [
+mujoco = [
     "websockets>=12",
+    "mujoco>=3.2",
+    "robot_descriptions>=1.11",
 ]
 
 [tool.hatch.build.targets.wheel]

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from par.core.action import Action
 from par.core.observation import Observation
-from par.robots.webots_bridge import WebotsRobot
+from par.robots.mujoco_bridge import MuJoCoRobot
 
 
 def _action(skill_name: str, parameters: dict) -> Action:
@@ -27,82 +27,81 @@ class _FakeBridge:
 
 def test_get_observation_routes_through_ros2_mapping():
     bridge = _FakeBridge(
-        observation_payload={"robot_state": {"position": {"x": 0.5, "y": 0.0, "z": 0.0}}, "detections": [{"name": "red_object"}]},
+        observation_payload={
+            "robot_state": {"position": {"x": 0.55, "y": 0.0, "z": 0.62}},  # Panda EE at home
+            "detections": [{"name": "red_object"}, {"name": "blue_container"}, {"name": "laptop"}],
+        },
         action_reply={},
     )
-    robot = WebotsRobot(bridge=bridge)
+    robot = MuJoCoRobot(bridge=bridge)
 
     observation = robot.get_observation()
 
     assert isinstance(observation, Observation)
     assert observation.source == "ros2"  # same schema real ROS 2 would carry
-    assert observation.robot_state == {"position": {"x": 0.5, "y": 0.0, "z": 0.0}}
-    assert observation.detections == [{"name": "red_object"}]
+    assert observation.robot_state == {"position": {"x": 0.55, "y": 0.0, "z": 0.62}}
+    assert len(observation.detections) == 3
 
 
 def test_get_observation_surfaces_bridge_error_via_raw():
-    bridge = _FakeBridge(observation_payload={"raw": {"error": "Webots bridge unreachable"}}, action_reply={})
-    robot = WebotsRobot(bridge=bridge)
+    bridge = _FakeBridge(observation_payload={"raw": {"error": "MuJoCo bridge unreachable"}}, action_reply={})
+    robot = MuJoCoRobot(bridge=bridge)
 
     observation = robot.get_observation()
 
     assert observation.robot_state == {}
-    assert observation.raw == {"error": "Webots bridge unreachable"}
+    assert observation.raw == {"error": "MuJoCo bridge unreachable"}
 
 
 def test_execute_sends_action_payload_and_builds_result():
     bridge = _FakeBridge(
         observation_payload={},
-        action_reply={"success": True, "message": "reached target"},
+        action_reply={"success": True, "message": "moved toward (0.50, 0.20) via 'par_near_red'"},
     )
-    robot = WebotsRobot(bridge=bridge)
+    robot = MuJoCoRobot(bridge=bridge)
 
     result = robot.execute(_action("move", {"x": 0.5, "y": 0.2, "z": 0.0}))
 
     assert bridge.sent_actions == [{"action_id": "a1", "skill_name": "move", "parameters": {"x": 0.5, "y": 0.2, "z": 0.0}}]
     assert result.success is True
-    assert result.message == "reached target"
+    assert "par_near_red" in result.message
 
 
 def test_execute_reports_failure_from_bridge():
-    bridge = _FakeBridge(observation_payload={}, action_reply={"success": False, "message": "Webots bridge connection failed"})
-    robot = WebotsRobot(bridge=bridge)
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": False, "message": "MuJoCo bridge connection failed"})
+    robot = MuJoCoRobot(bridge=bridge)
 
     result = robot.execute(_action("stop", {}))
 
     assert result.success is False
-    assert result.message == "Webots bridge connection failed"
+    assert result.message == "MuJoCo bridge connection failed"
 
 
-def test_begin_computer_use_sends_dock_action():
-    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "docked near 'laptop'"})
-    robot = WebotsRobot(bridge=bridge)
+def test_begin_computer_use_sends_dock_at_laptop_action():
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "docked at laptop"})
+    robot = MuJoCoRobot(bridge=bridge)
 
     robot.begin_computer_use()
 
     assert len(bridge.sent_actions) == 1
     sent = bridge.sent_actions[0]
-    assert sent["skill_name"] == "dock_at_computer"
+    assert sent["skill_name"] == "dock_at_laptop"
     assert sent["parameters"] == {}
-    assert "action_id" in sent  # a fresh id - this call has no originating PAR Action
+    assert "action_id" in sent
 
 
-def test_end_computer_use_sends_undock_action():
-    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "undocked from computer"})
-    robot = WebotsRobot(bridge=bridge)
+def test_end_computer_use_sends_undock_from_laptop_action():
+    bridge = _FakeBridge(observation_payload={}, action_reply={"success": True, "message": "undocked (returned to home)"})
+    robot = MuJoCoRobot(bridge=bridge)
 
     robot.end_computer_use()
 
     assert len(bridge.sent_actions) == 1
-    assert bridge.sent_actions[0]["skill_name"] == "undock_from_computer"
+    assert bridge.sent_actions[0]["skill_name"] == "undock_from_laptop"
 
 
 def test_dock_hooks_never_raise_even_if_bridge_reports_failure():
-    # begin_/end_computer_use's result is intentionally not checked by callers
-    # (see ComputerAugmentedRobot) - a docking failure must never surface as
-    # an exception that could block the actual use_computer delegation.
     bridge = _FakeBridge(observation_payload={}, action_reply={"success": False, "message": "'laptop' prop not found"})
-    robot = WebotsRobot(bridge=bridge)
-
+    robot = MuJoCoRobot(bridge=bridge)
     robot.begin_computer_use()
     robot.end_computer_use()

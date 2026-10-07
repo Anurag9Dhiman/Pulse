@@ -1,44 +1,30 @@
 from __future__ import annotations
 
-import os
-
 from par.core.action import Action, ActionResult
 from par.core.observation import Observation
 from par.integrations.collectiveos import CollectiveOSBridge
-from par.integrations.simulated_arm_computer_use import SimulatedArmBridge
-from par.integrations.vision_guided_arm import VisionGuidedArmBridge
 from par.robots.base import RobotInterface
 from par.skills.computer_use import DEFAULT_TIMEOUT_SECONDS
 
 _COMPUTER_USE_SKILL = "use_computer"
 
-_ComputerUseBridge = CollectiveOSBridge | SimulatedArmBridge | VisionGuidedArmBridge
-
-
-def _default_bridge() -> _ComputerUseBridge:
-    """Which bridge a use_computer delegation actually reaches, when the
-    caller doesn't pass one explicitly - PAR_COMPUTER_USE_MODE=simulated_arm
-    routes to computer_arm's physical gantry with keyword-matched button
-    choice, vision_guided_arm routes to the same gantry but with Gemini
-    deciding the button from a real camera image. Defaults to "collectiveos"
-    so existing callers/examples are unaffected."""
-    mode = os.environ.get("PAR_COMPUTER_USE_MODE", "collectiveos")
-    if mode == "simulated_arm":
-        return SimulatedArmBridge()
-    if mode == "vision_guided_arm":
-        return VisionGuidedArmBridge()
-    return CollectiveOSBridge()
-
 
 class ComputerAugmentedRobot(RobotInterface):
     """Wraps a RobotInterface, routing `use_computer` actions to a
-    computer-use bridge (real CollectiveOS by default, or computer_arm's
-    physical gantry - see _default_bridge) and everything else to the
-    wrapped robot unchanged."""
+    CollectiveOS bridge and everything else to the wrapped robot unchanged.
 
-    def __init__(self, robot: RobotInterface, bridge: _ComputerUseBridge | None = None) -> None:
+    Earlier revisions supported a PAR_COMPUTER_USE_MODE env var that could
+    swap in alternative "physically-real" bridges (gantry-pressing-buttons
+    variants) alongside CollectiveOS; those bridges and the mode switch
+    were removed when Webots was retired - the current MuJoCo arm
+    integration keeps the governance+delegation story clean by using one
+    bridge (real CollectiveOS) end to end, with the arm's visible dock-at-
+    laptop keyframe standing in for the physical hand-off.
+    """
+
+    def __init__(self, robot: RobotInterface, bridge: CollectiveOSBridge | None = None) -> None:
         self._robot = robot
-        self._bridge = bridge or _default_bridge()
+        self._bridge = bridge or CollectiveOSBridge()
 
     def get_observation(self) -> Observation:
         return self._robot.get_observation()
@@ -48,9 +34,10 @@ class ComputerAugmentedRobot(RobotInterface):
             return self._robot.execute(action)
 
         # Optional hook: robots that can physically represent "at the
-        # computer" (e.g. WebotsRobot docking near a laptop prop) implement
-        # begin_/end_computer_use(); robots that can't (MockRobot, ROS2Robot)
-        # simply don't have the attribute, so this is a no-op for them.
+        # computer" (e.g. MuJoCoRobot docking its end-effector at the
+        # laptop prop) implement begin_/end_computer_use(); robots that
+        # can't (MockRobot, ROS2Robot) simply don't have the attribute,
+        # so this is a no-op for them.
         begin_computer_use = getattr(self._robot, "begin_computer_use", None)
         if begin_computer_use is not None:
             begin_computer_use()

@@ -6,9 +6,7 @@ from par.core.action import Action, ActionResult
 from par.core.capability import RiskLevel
 from par.core.observation import Observation
 from par.integrations.collectiveos import CollectiveOSBridge
-from par.integrations.simulated_arm_computer_use import SimulatedArmBridge
-from par.integrations.vision_guided_arm import VisionGuidedArmBridge
-from par.robots.computer_bridge import ComputerAugmentedRobot, _default_bridge
+from par.robots.computer_bridge import ComputerAugmentedRobot
 from par.robots.mock import MockRobot
 from par.skills.computer_use import DEFAULT_TIMEOUT_SECONDS, computer_use_skill
 
@@ -140,22 +138,10 @@ def test_use_computer_is_admitted_under_both_profiles_and_escalates_when_approva
     assert unattended.check(action, observation, capability).outcome == PolicyOutcome.ALLOW
 
 
-def test_default_bridge_is_collectiveos_when_mode_unset(monkeypatch):
-    monkeypatch.delenv("PAR_COMPUTER_USE_MODE", raising=False)
-    assert isinstance(_default_bridge(), CollectiveOSBridge)
-
-
-def test_default_bridge_is_simulated_arm_when_mode_set(monkeypatch):
-    monkeypatch.setenv("PAR_COMPUTER_USE_MODE", "simulated_arm")
-    assert isinstance(_default_bridge(), SimulatedArmBridge)
-
-
-def test_default_bridge_is_vision_guided_arm_when_mode_set(monkeypatch):
-    monkeypatch.setenv("PAR_COMPUTER_USE_MODE", "vision_guided_arm")
-    assert isinstance(_default_bridge(), VisionGuidedArmBridge)
-
-
-def test_computer_augmented_robot_uses_env_selected_default_when_no_bridge_given(monkeypatch):
-    monkeypatch.setenv("PAR_COMPUTER_USE_MODE", "simulated_arm")
+def test_default_bridge_is_collectiveos():
+    """ComputerAugmentedRobot defaults to CollectiveOSBridge when no bridge
+    is passed explicitly. Earlier revisions supported a PAR_COMPUTER_USE_MODE
+    env var that could swap in gantry-pressing-button bridges; those were
+    removed when Webots was retired - CollectiveOS is now the only bridge."""
     robot = ComputerAugmentedRobot(MockRobot())
-    assert isinstance(robot._bridge, SimulatedArmBridge)
+    assert isinstance(robot._bridge, CollectiveOSBridge)
