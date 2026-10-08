@@ -65,12 +65,14 @@ _STEPS: list[tuple[str, dict[str, Any]]] = [
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1] + 0.4, "z": 0.0}),  # near red_object: allowed
     ("move", {"x": _RED_OBJECT[0], "y": _RED_OBJECT[1], "z": 0.0}),  # onto red_object: denied (collision)
     ("move", {"x": _BLUE_CONTAINER[0], "y": _BLUE_CONTAINER[1] + 0.4, "z": 0.0}),  # near blue_container: allowed
+    # Real manipulation: arm picks the red cube up, carries it, drops it in the blue bowl.
+    ("pick_and_place", {"object": "red_object", "target": "blue_container"}),
     # Physical task done - now delegate a digital subtask. Watch the arm's
     # end-effector move to the laptop prop; whether CollectiveOS itself
     # succeeds depends on whether it's actually running.
-    ("use_computer", {"task": "check whether any maintenance alerts are open"}),
+    ("use_computer", {"task": "which application is currently in the foreground?"}),
     ("stop", {}),
-    (TASK_COMPLETE, {"message": "toured the arena and delegated a digital subtask"}),
+    (TASK_COMPLETE, {"message": "toured, picked and placed the red cube, delegated a digital subtask"}),
 ]
 
 

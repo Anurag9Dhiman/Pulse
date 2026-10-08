@@ -31,6 +31,16 @@ _SPECS: list[tuple[str, str, RiskLevel, bool, set[str], dict[str, str]]] = [
         {"target"},
         {"target": "str"},
     ),
+    (
+        "pick_and_place",
+        "Pick up a source object and place it at a target. The robot interface "
+        "decides how (gripper, suction, etc). State-only on robots without a "
+        "gripper; actual manipulation on robots that implement the skill.",
+        RiskLevel.MEDIUM,
+        True,  # supports_rollback: cube can be moved back
+        {"object", "target"},
+        {"object": "str", "target": "str"},
+    ),
 ]
 
 

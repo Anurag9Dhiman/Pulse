@@ -6,7 +6,7 @@ from par.skills import builtin_skills
 
 def test_registry_lists_all_builtin_skills(skill_registry: SkillRegistry):
     assert skill_registry.list_names() == sorted(
-        {"detect", "move", "pick", "place", "stop", "inspect"}
+        {"detect", "move", "pick", "place", "stop", "inspect", "pick_and_place"}
     )
 
 
