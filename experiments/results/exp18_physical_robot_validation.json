@@ -1,34 +1,1118 @@
 {
   "experiment": "18_physical_robot_validation",
-  "status": "NOT RUN - no physical robot, sensing hardware, or ROS 2 installation available in this environment",
-  "blocked_on": [
-    "A physical robot with ROS 2 (or an equivalent bridge, e.g. the Webots pattern in par.integrations.webots, adapted for a real robot controller) reachable from this codebase.",
-    "Real sensing (camera/depth) feeding actual Observation.detections, not MockRobot's fixed fixtures.",
-    "A safe physical test environment where 'introduce an obstacle' and 'trigger emergency stop' can be done without risk."
-  ],
-  "what_this_experiment_would_measure": {
-    "tasks": [
-      "move",
-      "detect",
-      "pick",
-      "place",
-      "inspect",
-      "stop"
-    ],
-    "perturbations": [
-      "obstacle_insertion",
-      "capability_restriction"
-    ],
-    "metrics": [
-      "physical_collision_occurrence",
-      "unsafe_execution",
-      "task_completion",
-      "recovery_rate",
-      "end_to_end_latency",
-      "emergency_stop_activation",
-      "perception_to_policy_latency"
-    ]
+  "status": "RUN - against a real Webots physics simulation (Reach/webots), not physical hardware",
+  "honest_scope": {
+    "what_is_physically_real": "move and stop drive a real differential-drive control loop against real Webots physics; detect and inspect query real simulated object positions; the WebSocket transport and par_bridge.py are a genuine separate OS process, not an in-process mock.",
+    "what_is_not_physically_real": "pick and place are state-only bookkeeping in par_bridge.py's own words ('state only - e-puck has no gripper') - this e-puck platform cannot physically grasp anything, regardless of what this experiment does.",
+    "what_this_still_does_not_test": "real sensor noise, real actuator slip beyond what Webots' physics models, real-world unpredictability, or any consequence of a genuine physical collision - RQ12's full claim (physical hardware) remains untested after this run."
   },
-  "protocol_for_future_execution": "1) Connect PAR to the physical robot via ROS2Robot (Experiment 17 must pass first - this experiment depends on it). 2) Run each of the 6 named tasks individually, verifying via direct observation (not just ActionResult.success) that the robot did what was requested. 3) For each task, repeat with obstacle_insertion (physically place an object in the path after planning) and capability_restriction (temporarily remove a capability's env_profiles entry mid-task) - same perturbation pattern as Experiment 7, but with real physical consequences, not MockRobot's simulated ones. 4) Record all 7 metrics per trial. 5) Compare physical_collision_occurrence and unsafe_execution against Experiment 1/8's simulated numbers - the central open question this experiment answers is whether the simulated numbers hold up against real sensor noise, real actuator imprecision, and real latency, none of which MockRobot models.",
-  "what_would_make_this_experiment_meaningful": "Unlike most of this suite, statistical volume here is expensive (each trial is a real physical action) - even a small number of real trials (10-20 per task) covering the perturbation conditions would be more informative than the hundreds of free simulated trials elsewhere in this suite, precisely because MockRobot cannot produce the failure modes (actuator slip, sensor noise, real obstacle geometry) that only real hardware can."
+  "profile": "real_robot",
+  "trial_design": "5 baseline + 5 obstacle_insertion + 3 capability_restriction per task, each denial followed by one recovery-check retry, across 6 tasks, plus one dedicated emergency-stop sequence",
+  "wall_clock_seconds": 1.77,
+  "results_by_task": [
+    {
+      "task": "move",
+      "baseline": [
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "reached (0.00, -0.30)",
+          "latency_seconds": 0.09503537499949744,
+          "wall_seconds": 0.095
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "reached (0.00, 0.00)",
+          "latency_seconds": 0.08175508400017861,
+          "wall_seconds": 0.082
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "reached (0.00, -0.30)",
+          "latency_seconds": 0.08566979199986235,
+          "wall_seconds": 0.086
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "reached (0.00, 0.00)",
+          "latency_seconds": 0.08639574999961042,
+          "wall_seconds": 0.086
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "reached (0.00, -0.30)",
+          "latency_seconds": 0.08060958299938648,
+          "wall_seconds": 0.081
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "success": false,
+          "message": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "latency_seconds": 0.002006458999858296,
+          "wall_seconds": 0.002,
+          "applicable": true,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "collision risk: target (0.0, -0.3, 0.0) is within 0.5m of detected object 'blue_container'",
+          "success": false,
+          "message": "collision risk: target (0.0, -0.3, 0.0) is within 0.5m of detected object 'blue_container'",
+          "latency_seconds": 0.0019697500001711887,
+          "wall_seconds": 0.002,
+          "applicable": true,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "success": false,
+          "message": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "latency_seconds": 0.0020397499993123347,
+          "wall_seconds": 0.002,
+          "applicable": true,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "collision risk: target (0.0, -0.3, 0.0) is within 0.5m of detected object 'blue_container'",
+          "success": false,
+          "message": "collision risk: target (0.0, -0.3, 0.0) is within 0.5m of detected object 'blue_container'",
+          "latency_seconds": 0.0019526249998307321,
+          "wall_seconds": 0.002,
+          "applicable": true,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "success": false,
+          "message": "collision risk: target (0.0, 0.0, 0.0) is within 0.5m of detected object 'blue_container'",
+          "latency_seconds": 0.0019499170002745814,
+          "wall_seconds": 0.002,
+          "applicable": true,
+          "recovered": true
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "capability 'move' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'move' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0020935419997840654,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "capability 'move' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'move' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0020865409996986273,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "move",
+          "parameters": {
+            "x": 0.0,
+            "y": -0.3,
+            "z": 0.0
+          },
+          "outcome": "DENY",
+          "reason": "capability 'move' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'move' not registered for profile 'real_robot'",
+          "latency_seconds": 0.002208375000009255,
+          "wall_seconds": 0.002,
+          "recovered": true
+        }
+      ]
+    },
+    {
+      "task": "detect",
+      "baseline": [
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.0038707920002707397,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.005703333999917959,
+          "wall_seconds": 0.006
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.003989333999925293,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.004037583999888739,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.003523624999616004,
+          "wall_seconds": 0.004
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.0038076249993537203,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.0038105420007923385,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.007990457999767386,
+          "wall_seconds": 0.008,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.004682750000029046,
+          "wall_seconds": 0.005,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "detected 2 objects: red_object, blue_container",
+          "latency_seconds": 0.00639083300029597,
+          "wall_seconds": 0.006,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'detect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'detect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0018749579994619126,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'detect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'detect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0018683329999475973,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "detect",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'detect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'detect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0018962499998451676,
+          "wall_seconds": 0.002,
+          "recovered": true
+        }
+      ]
+    },
+    {
+      "task": "pick",
+      "baseline": [
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0038346659994203947,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0031910839998090523,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0031875829999989946,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0031061250001584995,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.00383758400039369,
+          "wall_seconds": 0.004
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.004189874999610765,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0038231669996093842,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0033453340001869947,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0033986670005106134,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "picked 'red_object' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.004301083000427752,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'pick' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'pick' not registered for profile 'real_robot'",
+          "latency_seconds": 0.005405875000178639,
+          "wall_seconds": 0.005,
+          "recovered": true
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'pick' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'pick' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0017975419996218989,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "pick",
+          "parameters": {
+            "object": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'pick' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'pick' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0017722500006129849,
+          "wall_seconds": 0.002,
+          "recovered": true
+        }
+      ]
+    },
+    {
+      "task": "place",
+      "baseline": [
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.002702292000321904,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.003405582999221224,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0033989169996857527,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.005851791000168305,
+          "wall_seconds": 0.006
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.003303000000414613,
+          "wall_seconds": 0.003
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.004182790999948338,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0029185420007706853,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.004161583000495739,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0032028329997046967,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "placed 'red_object' at 'blue_container' (state only - e-puck has no gripper)",
+          "latency_seconds": 0.0037962500000503496,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'place' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'place' not registered for profile 'real_robot'",
+          "latency_seconds": 0.002343292000659858,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'place' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'place' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0018614999999044812,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "place",
+          "parameters": {
+            "target": "blue_container"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'place' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'place' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0017694159996608505,
+          "wall_seconds": 0.002,
+          "recovered": true
+        }
+      ]
+    },
+    {
+      "task": "inspect",
+      "baseline": [
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.003314165999654506,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.0035794159994111396,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.004092208000656683,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.0036096660005568992,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.006571667000571324,
+          "wall_seconds": 0.007
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.003377333000571525,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.004874541000390309,
+          "wall_seconds": 0.005,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.004629207999641949,
+          "wall_seconds": 0.005,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.0045407500001601875,
+          "wall_seconds": 0.005,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "inspected 'red_object': found",
+          "latency_seconds": 0.004935875000228407,
+          "wall_seconds": 0.005,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'inspect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'inspect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0023734999995213,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'inspect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'inspect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0022161250008139177,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "inspect",
+          "parameters": {
+            "target": "red_object"
+          },
+          "outcome": "DENY",
+          "reason": "capability 'inspect' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'inspect' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0022515000000566943,
+          "wall_seconds": 0.002,
+          "recovered": true
+        }
+      ]
+    },
+    {
+      "task": "stop",
+      "baseline": [
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0064640000000508735,
+          "wall_seconds": 0.006
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.003628499999649648,
+          "wall_seconds": 0.004
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0032032090002758196,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0026172500001848675,
+          "wall_seconds": 0.003
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0026902500003416208,
+          "wall_seconds": 0.003
+        }
+      ],
+      "obstacle_insertion": [
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0030761250000068685,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0028660830002991133,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.0031287499996324186,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.00298120800016477,
+          "wall_seconds": 0.003,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "ALLOW",
+          "reason": null,
+          "success": true,
+          "message": "stopped",
+          "latency_seconds": 0.004095917000086047,
+          "wall_seconds": 0.004,
+          "applicable": false,
+          "note": "SafetyKernel.check() has no geometric check for this skill - no denial possible regardless of a nearby object"
+        }
+      ],
+      "capability_restriction": [
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'stop' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'stop' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0018572919998405268,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'stop' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'stop' not registered for profile 'real_robot'",
+          "latency_seconds": 0.0023104160000002594,
+          "wall_seconds": 0.002,
+          "recovered": true
+        },
+        {
+          "task": "stop",
+          "parameters": {},
+          "outcome": "DENY",
+          "reason": "capability 'stop' not registered for profile 'real_robot'",
+          "success": false,
+          "message": "capability 'stop' not registered for profile 'real_robot'",
+          "latency_seconds": 0.00516737500038289,
+          "wall_seconds": 0.005,
+          "recovered": true
+        }
+      ]
+    }
+  ],
+  "emergency_stop_sequence": {
+    "before_estop": {
+      "task": "move",
+      "parameters": {
+        "x": 0.0,
+        "y": -0.3,
+        "z": 0.0
+      },
+      "outcome": "ALLOW",
+      "reason": null,
+      "success": true,
+      "message": "reached (0.00, -0.30)",
+      "latency_seconds": 0.0029997910005477024,
+      "wall_seconds": 0.003
+    },
+    "during_estop": {
+      "task": "move",
+      "parameters": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "outcome": "DENY",
+      "reason": "emergency stop engaged",
+      "success": false,
+      "message": "emergency stop engaged",
+      "latency_seconds": 0.0018204580001111026,
+      "wall_seconds": 0.002
+    },
+    "after_clearing_estop": {
+      "task": "move",
+      "parameters": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "outcome": "ALLOW",
+      "reason": null,
+      "success": true,
+      "message": "reached (0.00, 0.00)",
+      "latency_seconds": 0.08130425000035757,
+      "wall_seconds": 0.081
+    },
+    "estop_blocked_action": true,
+    "recovered_after_clearing": true
+  },
+  "summary": {
+    "total_trials": 78,
+    "outcome_counts": {
+      "ALLOW": 55,
+      "DENY": 23
+    },
+    "n_denied": 23,
+    "n_denied_with_recovery_checked": 23,
+    "recovery_rate": 1.0,
+    "obstacle_insertion_applicable_only_to": "move (see per-trial 'applicable'/'note' fields for the other 5 tasks)",
+    "emergency_stop_worked": true
+  },
+  "metrics_not_captured_this_run": {
+    "physical_collision_occurrence": "no real collision is possible to measure - this is a simulation; the Safety Kernel's collision_margin DENY count is the closest proxy and is in outcome_counts above",
+    "perception_to_policy_latency": "Runtime._step() doesn't expose a perception/policy sub-breakdown hook; only total per-step latency_seconds is available without modifying runtime.py, which was out of scope for this experiment"
+  }
 }
