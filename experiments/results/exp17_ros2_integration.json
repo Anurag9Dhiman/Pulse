@@ -1,19 +1,158 @@
 {
   "experiment": "17_ros2_integration",
-  "rclpy_available_in_this_environment": false,
+  "run_at": "2026-10-01T02:21:58.368090+00:00",
+  "rclpy_available_in_this_environment": true,
+  "ran_against": "real rclpy node (mock_ros2_robot.py) over actual ROS 2 topics, not in-process",
   "mapping_logic_check": {
     "payload_to_observation_roundtrip_ok": true,
     "action_to_payload_roundtrip_ok": true
   },
-  "mapping_logic_verified": true,
-  "steps_requiring_real_ros2": {
-    "observation_acquisition": "unverified - needs a running ROS 2 node publishing to /par/robot_state, /par/detections",
-    "capability_invocation": "unverified - covered structurally by par.core (Experiments 1-14), untested over the real ROS 2 transport",
-    "safety_kernel_evaluation": "unverified over ROS 2 specifically - SafetyKernel itself is fully verified (Experiments 1-14) independent of transport",
-    "action_publication": "unverified - needs a running ROS 2 node subscribing to /par/action",
-    "action_result_acquisition": "unverified - ROS2Robot.execute() currently fire-and-forget (see module docstring in ros2_adapter.py); no completion-acknowledgement channel exists yet",
-    "timeout_handling": "unverified over real ROS 2 latency - timeout mechanism itself is verified (test_action_timeout_produces_failed_result) independent of transport",
-    "emergency_stop_behavior": "unverified over ROS 2 specifically - mechanism itself is verified (Experiment 8, test_emergency_stop_blocks_all_actions) independent of transport"
+  "profile": "real_robot",
+  "wall_clock_seconds": 16.58,
+  "steps": [
+    {
+      "skill": "detect",
+      "parameters": {},
+      "intent": "baseline ALLOW, no move-specific checks apply",
+      "outcome": "ALLOW",
+      "reason": null,
+      "payload": {
+        "action_id": "010ebb15-58ea-47e9-a199-4cffc47f9c0e",
+        "skill_name": "detect",
+        "parameters": {}
+      },
+      "latency_seconds": 2.0855464179999785
+    },
+    {
+      "skill": "move",
+      "parameters": {
+        "x": 0.2,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "intent": "ALLOW: inside workspace, slow, clear of the obstacle",
+      "outcome": "ALLOW",
+      "reason": null,
+      "payload": {
+        "action_id": "f6a583ed-c5d4-4e39-8680-b3331af98a29",
+        "skill_name": "move",
+        "parameters": {
+          "x": 0.2,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      "latency_seconds": 2.097075208999968
+    },
+    {
+      "skill": "move",
+      "parameters": {
+        "x": 0.6,
+        "y": 0.5,
+        "z": 0.0
+      },
+      "intent": "Policy Guard DENY: 0.1m from the obstacle, inside the 0.5m margin",
+      "outcome": "DENY",
+      "reason": "collision risk: target (0.6, 0.5, 0.0) is within 0.5m of detected object 'obstacle_1'",
+      "payload": {
+        "action_id": "f84af337-9285-4317-a1e0-798ec5bc8507",
+        "skill_name": "move",
+        "parameters": {
+          "x": 0.6,
+          "y": 0.5,
+          "z": 0.0
+        }
+      },
+      "latency_seconds": 2.1006462510000006
+    },
+    {
+      "skill": "move",
+      "parameters": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "intent": "Policy Guard DENY: x=2.0 outside workspace bound [-1, 1]",
+      "outcome": "DENY",
+      "reason": "target (2.0, 0.0, 0.0) is outside workspace bounds x=(-1.0, 1.0) y=(-1.0, 1.0) z=(0.0, 1.2)",
+      "payload": {
+        "action_id": "1645aa8f-daf1-4ec1-b626-98e6e545903d",
+        "skill_name": "move",
+        "parameters": {
+          "x": 2.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      "latency_seconds": 2.0036729590000277
+    },
+    {
+      "skill": "move",
+      "parameters": {
+        "x": 1.0,
+        "y": -1.0,
+        "z": 1.0
+      },
+      "intent": "Policy Guard MODIFY: 1.73m away, exceeds the 1.5m reachable distance",
+      "outcome": "MODIFY",
+      "reason": null,
+      "payload": {
+        "action_id": "ed1d753e-7e63-4fb5-b675-8228f111d800",
+        "skill_name": "move",
+        "parameters": {
+          "x": 0.8660254037844387,
+          "y": -0.8660254037844387,
+          "z": 0.8660254037844387
+        }
+      },
+      "latency_seconds": 2.091460251000001
+    },
+    {
+      "skill": "pick",
+      "parameters": {
+        "object": "red_object"
+      },
+      "intent": "Admission DENY: 'pick' is only registered for 'simulation'",
+      "outcome": "DENY",
+      "reason": "capability 'pick' not registered for profile 'real_robot'",
+      "payload": {
+        "action_id": "dfe84e5f-0f57-41f7-aae4-2d4af6b0f587",
+        "skill_name": "pick",
+        "parameters": {
+          "object": "red_object"
+        }
+      },
+      "latency_seconds": 2.0034066260000145
+    },
+    {
+      "skill": "stop",
+      "parameters": {},
+      "intent": "ALLOW: no move-specific checks apply",
+      "outcome": "ALLOW",
+      "reason": null,
+      "payload": {
+        "action_id": "140088d1-1e36-42e4-9799-86fda66cc35e",
+        "skill_name": "stop",
+        "parameters": {}
+      },
+      "latency_seconds": 2.1010162510000328
+    }
+  ],
+  "cross_check_against_ros2_action_topic": {
+    "trace_file_found": true,
+    "n_messages_received_on_action_topic": 4,
+    "n_executed_steps_confirmed_published": 4,
+    "governance_boundary_held": true,
+    "violations": []
   },
-  "how_to_actually_run_this_experiment": "1) Install and source ROS 2 Jazzy or Humble. 2) Run the par_bridge extern-controller pattern (see par.integrations.webots for the equivalent Webots pattern) or a minimal ROS 2 node publishing mock state/detections and echoing published actions as if executed. 3) Construct Runtime(agent, ROS2Robot(), safety_kernel=SafetyKernel(...)) and run the same benchmark generators from Experiment 1 through it. 4) Record full ROS 2 topic traces (ros2 bag record) for each trial to verify no prohibited action was ever published to the command topic. This script provides the mapping-logic half; the rest needs a machine with ROS 2 installed, which this environment does not have."
+  "steps_requiring_real_ros2": {
+    "observation_acquisition": "verified - ROS2Robot.get_observation() received real /par/robot_state and /par/detections messages from a separate process",
+    "capability_invocation": "verified over the real transport for this run's 8 steps (detect, move x4, pick, stop, task_complete)",
+    "safety_kernel_evaluation": "verified - Admission and Policy Guard both exercised over real-transport observations",
+    "action_publication": "verified - see cross_check_against_ros2_action_topic",
+    "action_result_acquisition": "still unverified - ROS2Robot.execute() remains fire-and-forget (see ros2_adapter.py); mock_ros2_robot.py has no completion-acknowledgement channel to confirm against",
+    "timeout_handling": "not exercised this run - no action in the scripted plan was slow enough to trigger action_timeout_seconds; the mechanism itself stays covered by test_action_timeout_produces_failed_result",
+    "emergency_stop_behavior": "not exercised this run - would need a second driver invocation calling runtime.emergency_stop() mid-task; left for a follow-up run rather than invented here"
+  },
+  "known_limitation_observed": "ROS2Robot.get_observation() spins for the full observation_timeout (2.0s default) on every call regardless of when data actually arrives (see the unconditional while-loop in ros2_adapter.py) - this run's wall-clock time is dominated by that fixed per-step cost, not by DDS or governance latency."
 }

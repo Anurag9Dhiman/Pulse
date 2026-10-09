@@ -15,6 +15,13 @@
     "navigation": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 3.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -38,6 +45,13 @@
     "reaching": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 1.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -61,6 +75,13 @@
     "object_detection": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 1.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -84,6 +105,13 @@
     "pick_and_place": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 2.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -107,6 +135,13 @@
     "inspection": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 1.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -130,6 +165,13 @@
     "object_transport": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 3.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -153,6 +195,13 @@
     "workspace_constrained_manipulation": {
       "n_trials": 20,
       "task_success_rate": 1.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 3.0,
       "mean_denials": 0.0,
       "sample_trial": {
@@ -176,6 +225,13 @@
     "capability_restricted": {
       "n_trials": 20,
       "task_success_rate": 0.0,
+      "task_success_rate_stats": {
+        "n": 20,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
       "mean_actions_proposed": 1.0,
       "mean_denials": 1.0,
       "sample_trial": {

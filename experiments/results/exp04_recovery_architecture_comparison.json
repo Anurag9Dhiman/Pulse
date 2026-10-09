@@ -19,25 +19,81 @@
       "task_success_rate": 0.24666666666666667,
       "unsafe_execution_rate": 0.7533333333333333,
       "mean_actions_attempted": 1.0,
-      "mean_recovery_steps": 0.0
+      "mean_recovery_steps": 0.0,
+      "task_success_rate_stats": {
+        "n": 150,
+        "mean": 0.24666666666666667,
+        "median": 0.0,
+        "stdev": 0.4325151456659351,
+        "ci95_half_width": 0.0692168389765959
+      },
+      "unsafe_execution_rate_stats": {
+        "n": 150,
+        "mean": 0.7533333333333333,
+        "median": 1.0,
+        "stdev": 0.4325151456659351,
+        "ci95_half_width": 0.0692168389765959
+      }
     },
     "safety_no_replan": {
       "task_success_rate": 0.24666666666666667,
       "unsafe_execution_rate": 0.0,
       "mean_actions_attempted": 1.0,
-      "mean_recovery_steps": 0.0
+      "mean_recovery_steps": 0.0,
+      "task_success_rate_stats": {
+        "n": 150,
+        "mean": 0.24666666666666667,
+        "median": 0.0,
+        "stdev": 0.4325151456659351,
+        "ci95_half_width": 0.0692168389765959
+      },
+      "unsafe_execution_rate_stats": {
+        "n": 150,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
     },
     "safety_recovery_module": {
       "task_success_rate": 1.0,
       "unsafe_execution_rate": 0.0,
       "mean_actions_attempted": 1.0,
-      "mean_recovery_steps": 0.0
+      "mean_recovery_steps": 0.0,
+      "task_success_rate_stats": {
+        "n": 150,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "unsafe_execution_rate_stats": {
+        "n": 150,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
     },
     "par_feedback": {
       "task_success_rate": 1.0,
       "unsafe_execution_rate": 0.0,
       "mean_actions_attempted": 2.5,
-      "mean_recovery_steps": 1.5
+      "mean_recovery_steps": 1.5,
+      "task_success_rate_stats": {
+        "n": 150,
+        "mean": 1.0,
+        "median": 1.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      },
+      "unsafe_execution_rate_stats": {
+        "n": 150,
+        "mean": 0.0,
+        "median": 0.0,
+        "stdev": 0.0,
+        "ci95_half_width": 0.0
+      }
     }
   },
   "notes": [
