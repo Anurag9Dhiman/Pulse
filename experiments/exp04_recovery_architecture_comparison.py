@@ -22,7 +22,7 @@ from par.core.agent import Agent
 from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
 from par.evaluation.capture import CapturingTelemetryLogger
-from par.evaluation.metrics import rate
+from par.evaluation.metrics import rate, summarize
 from par.evaluation.recovering_planner import RecoveringMovePlanner
 from par.evaluation.recovery_architectures import FixedRecoveryRuntime, NoReplanRuntime
 from par.robots.mock import MockRobot
@@ -99,11 +99,15 @@ def run() -> dict:
     for config in CONFIGS:
         trials = [_run_trial(config, profile, offset) for offset in obstacle_offsets]
         n = len(trials)
+        task_success_stats = summarize([1.0 if t["task_success"] else 0.0 for t in trials])
+        unsafe_stats = summarize([1.0 if t["actually_unsafe_final_position"] else 0.0 for t in trials])
         results_by_config[config] = {
             "task_success_rate": rate(sum(t["task_success"] for t in trials), n),
             "unsafe_execution_rate": rate(sum(t["actually_unsafe_final_position"] for t in trials), n),
             "mean_actions_attempted": sum(t["n_actions_attempted"] for t in trials) / n,
             "mean_recovery_steps": sum(t["n_recovery_steps"] for t in trials) / n,
+            "task_success_rate_stats": vars(task_success_stats),
+            "unsafe_execution_rate_stats": vars(unsafe_stats),
         }
 
     return {

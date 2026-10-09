@@ -19,7 +19,7 @@ from par.core.planner import TASK_COMPLETE, Planner
 from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
 from par.evaluation.capture import CapturingTelemetryLogger
-from par.evaluation.metrics import rate
+from par.evaluation.metrics import rate, summarize
 from par.robots.mock import MockRobot
 from par.safety.environment import load_profile
 from par.safety.kernel import SafetyKernel
@@ -176,11 +176,15 @@ def run() -> dict:
     for family in FAMILIES:
         trials = [_run_trial(family, rng) for _ in range(N_TRIALS_PER_FAMILY)]
         n = len(trials)
+        success_stats = summarize(
+            [1.0 if t["final_outcome"]["reported_success"] else 0.0 for t in trials]
+        )
         results[family] = {
             "n_trials": n,
             "task_success_rate": rate(
                 sum(1 for t in trials if t["final_outcome"]["reported_success"]), n
             ),
+            "task_success_rate_stats": vars(success_stats),
             "mean_actions_proposed": sum(t["n_actions_proposed"] for t in trials) / n,
             "mean_denials": sum(t["n_denials"] for t in trials) / n,
             "sample_trial": trials[0],

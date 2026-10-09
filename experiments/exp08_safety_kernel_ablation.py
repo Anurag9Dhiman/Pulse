@@ -23,7 +23,7 @@ from par.core.skill import SkillRegistry
 from par.evaluation.ablations import ABLATIONS
 from par.evaluation.benchmarks import generate_safety_interception_benchmark
 from par.evaluation.capture import CapturingTelemetryLogger
-from par.evaluation.metrics import rate
+from par.evaluation.metrics import rate, summarize
 from par.evaluation.runner import evaluate_cases
 from par.evaluation.verifiers import verify_pick_and_place
 from par.robots.mock import MockRobot
@@ -32,7 +32,7 @@ from par.skills import builtin_skills
 
 N_SAFE = 25
 N_UNSAFE = 25
-BENCHMARK_SEED = 1
+N_SEEDS = 10  # matches Experiment 1's treatment, for a directly comparable CI
 
 
 class _FixedTaskPlanner(Planner):
@@ -66,15 +66,28 @@ def run() -> dict:
     results = []
 
     for name, kernel_cls in ABLATIONS.items():
-        # (a) benchmark: unsafe/safe interception behavior (each BenchmarkCase
-        # sets its own env_profiles override, so this part is unaffected)
-        cases = generate_safety_interception_benchmark(profile, seed=BENCHMARK_SEED, n_safe=N_SAFE, n_unsafe=N_UNSAFE)
-        kernel_for_benchmark = kernel_cls(profile)
-        outcomes = evaluate_cases(cases, _registry(profile.name), kernel_for_benchmark)
-        unsafe = [o for o in outcomes if o.case.is_unsafe]
-        safe = [o for o in outcomes if not o.case.is_unsafe]
-        unsafe_executed = sum(1 for o in unsafe if o.actual_outcome == "allow")
-        safe_falsely_denied = sum(1 for o in safe if o.actual_outcome == "deny")
+        # (a) benchmark: unsafe/safe interception behavior, across N_SEEDS
+        # independent draws (each BenchmarkCase sets its own env_profiles
+        # override, so this part is unaffected) - same treatment as
+        # Experiment 1, so the two are directly comparable and this
+        # ablation's rates carry a real CI instead of a single sample.
+        per_seed = []
+        for seed in range(N_SEEDS):
+            cases = generate_safety_interception_benchmark(profile, seed=seed, n_safe=N_SAFE, n_unsafe=N_UNSAFE)
+            kernel_for_benchmark = kernel_cls(profile)
+            outcomes = evaluate_cases(cases, _registry(profile.name), kernel_for_benchmark)
+            unsafe = [o for o in outcomes if o.case.is_unsafe]
+            safe = [o for o in outcomes if not o.case.is_unsafe]
+            unsafe_executed = sum(1 for o in unsafe if o.actual_outcome == "allow")
+            safe_falsely_denied = sum(1 for o in safe if o.actual_outcome == "deny")
+            per_seed.append(
+                {
+                    "seed": seed,
+                    "unsafe_execution_rate": rate(unsafe_executed, len(unsafe)),
+                    "interception_rate": rate(len(unsafe) - unsafe_executed, len(unsafe)),
+                    "false_denial_rate": rate(safe_falsely_denied, len(safe)),
+                }
+            )
 
         # (b) fixed task: does it still complete, and is completion real?
         registry = _registry(profile.name)
@@ -90,9 +103,10 @@ def run() -> dict:
             {
                 "ablation": name,
                 "benchmark": {
-                    "unsafe_execution_rate": rate(unsafe_executed, len(unsafe)),
-                    "interception_rate": rate(len(unsafe) - unsafe_executed, len(unsafe)),
-                    "false_denial_rate": rate(safe_falsely_denied, len(safe)),
+                    "unsafe_execution_rate_stats": vars(summarize([s["unsafe_execution_rate"] for s in per_seed])),
+                    "interception_rate_stats": vars(summarize([s["interception_rate"] for s in per_seed])),
+                    "false_denial_rate_stats": vars(summarize([s["false_denial_rate"] for s in per_seed])),
+                    "per_seed": per_seed,
                 },
                 "fixed_task": {
                     "n_actions_attempted": len(task_results),
@@ -105,16 +119,17 @@ def run() -> dict:
         )
 
     baseline = next(r for r in results if r["ablation"] == "full_par")
+    baseline_mean = baseline["benchmark"]["unsafe_execution_rate_stats"]["mean"]
     return {
         "experiment": "8_safety_kernel_ablation",
         "profile": profile.name,
         "n_safe": N_SAFE,
         "n_unsafe": N_UNSAFE,
+        "n_seeds": N_SEEDS,
         "baseline": "full_par",
         "results_by_ablation": results,
         "unsafe_execution_rate_delta_vs_baseline": {
-            r["ablation"]: r["benchmark"]["unsafe_execution_rate"] - baseline["benchmark"]["unsafe_execution_rate"]
-            for r in results
+            r["ablation"]: r["benchmark"]["unsafe_execution_rate_stats"]["mean"] - baseline_mean for r in results
         },
         "caveats": [
             "no_workspace_check shows 0.0 delta not because workspace-checking is "
