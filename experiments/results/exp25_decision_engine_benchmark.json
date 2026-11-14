@@ -1,0 +1,202 @@
+{
+  "experiment": "25_decision_engine_benchmark",
+  "engine": "RuleDecisionEngine",
+  "n_goals": 18,
+  "goal_mix": "6 zero-parameter (should resolve), 8 parameterized (must defer), 2 ambiguous (must defer), 2 no-match (must defer)",
+  "reasoning_displacement_rate": 0.3333333333333333,
+  "n_confident_resolved_locally": 6,
+  "n_deferred_to_planner": 12,
+  "all_confident_decisions_match_expected_skill": true,
+  "all_confident_decisions_agree_with_planner": true,
+  "all_goals_matched_expectation": true,
+  "latency_stats_seconds": {
+    "n": 18,
+    "mean": 1.2223366259907682e-06,
+    "median": 9.580107871443033e-07,
+    "stdev": 7.620473629039334e-07,
+    "p95": 2.2920139599591494e-06
+  },
+  "per_goal": [
+    {
+      "goal": "stop the robot",
+      "expected_confident_skill": "stop",
+      "decision_confident": true,
+      "decision_skill_name": "stop",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 3.9590231608599424e-06
+    },
+    {
+      "goal": "stop now",
+      "expected_confident_skill": "stop",
+      "decision_confident": true,
+      "decision_skill_name": "stop",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 2.2920139599591494e-06
+    },
+    {
+      "goal": "please stop",
+      "expected_confident_skill": "stop",
+      "decision_confident": true,
+      "decision_skill_name": "stop",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 1.4170072972774506e-06
+    },
+    {
+      "goal": "detect objects nearby",
+      "expected_confident_skill": "detect",
+      "decision_confident": true,
+      "decision_skill_name": "detect",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 1.1249794624745846e-06
+    },
+    {
+      "goal": "detect what is around",
+      "expected_confident_skill": "detect",
+      "decision_confident": true,
+      "decision_skill_name": "detect",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 1.0420044418424368e-06
+    },
+    {
+      "goal": "run detect",
+      "expected_confident_skill": "detect",
+      "decision_confident": true,
+      "decision_skill_name": "detect",
+      "decision_confidence": 1.0,
+      "matches_expectation": true,
+      "agrees_with_planner": true,
+      "latency_seconds": 1.0420044418424368e-06
+    },
+    {
+      "goal": "pick the red_object",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 1.0830117389559746e-06
+    },
+    {
+      "goal": "pick up blue_container",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.580107871443033e-07
+    },
+    {
+      "goal": "place the object in blue_container",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 1.0829826351255178e-06
+    },
+    {
+      "goal": "place item at target",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.170034900307655e-07
+    },
+    {
+      "goal": "move to the target position",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 8.330098353326321e-07
+    },
+    {
+      "goal": "move forward",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 8.329807315021753e-07
+    },
+    {
+      "goal": "inspect the red_object",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 8.750066626816988e-07
+    },
+    {
+      "goal": "inspect blue_container closely",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.170034900307655e-07
+    },
+    {
+      "goal": "detect then stop",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.580107871443033e-07
+    },
+    {
+      "goal": "stop and detect",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 8.33999365568161e-07
+    },
+    {
+      "goal": "do something unspecified",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.170034900307655e-07
+    },
+    {
+      "goal": "complete the overall task",
+      "expected_confident_skill": null,
+      "decision_confident": false,
+      "decision_skill_name": null,
+      "decision_confidence": 0.0,
+      "matches_expectation": true,
+      "agrees_with_planner": null,
+      "latency_seconds": 9.170034900307655e-07
+    }
+  ],
+  "note": "reasoning_displacement_rate here is specific to this deliberately mixed 18-goal set, not a claim about real-task distributions - RuleDecisionEngine only ever resolves the subset of goals that are zero-parameter and unambiguous, by design (see its own docstring). latency_stats_seconds is the real measured local floor this milestone exists to establish, to compare a future JevDecisionEngine against - not a simulated or estimated number."
+}
