@@ -13,11 +13,19 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("doctor", help="Check runtime component readiness")
     subparsers.add_parser("demo", help="Run the live end-to-end demo (mock robot, no hardware needed)")
 
+    serve_parser = subparsers.add_parser("serve", help="Run the hosted API service (needs the 'service' extra)")
+    serve_parser.add_argument("--host", default="0.0.0.0")
+    serve_parser.add_argument("--port", type=int, default=8000)
+
     args = parser.parse_args(argv)
     if args.command == "doctor":
         return doctor.run()
     if args.command == "demo":
         return demo.run()
+    if args.command == "serve":
+        from par.cli import serve
+
+        return serve.run(args.host, args.port)
     return 1
 
 

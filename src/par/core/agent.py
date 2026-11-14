@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import Any
 from uuid import uuid4
 
 from par.core.action import Action, ActionResult
 from par.core.agent_state import AgentState, AgentStatus
+from par.core.capability import Capability
+from par.core.decision import Decision, DecisionEngine
 from par.core.observation import Observation
 from par.core.planner import TASK_COMPLETE, Planner, RuleBasedPlanner
 from par.core.skill import SkillRegistry
@@ -19,10 +22,18 @@ class Agent:
         skill_registry: SkillRegistry,
         planner: Planner | None = None,
         agent_id: str | None = None,
+        decision_engine: DecisionEngine | None = None,
+        decision_confidence_threshold: float = 0.8,
     ) -> None:
         self.skill_registry = skill_registry
         self.planner = planner or RuleBasedPlanner()
         self.state = AgentState(agent_id=agent_id or str(uuid4()))
+        self.decision_engine = decision_engine
+        self.decision_confidence_threshold = decision_confidence_threshold
+        self.last_decision: Decision | None = None  # most recent DecisionEngine
+        # output, whether or not it was acted on - a plain Agent attribute,
+        # not part of AgentState, so AgentState's own pydantic serialization
+        # is unaffected by it.
 
     def set_goal(self, goal: str) -> None:
         self.state.goal = goal
@@ -35,9 +46,8 @@ class Agent:
         """Returns the next Action to take, or None if the planner signaled task completion."""
         if self.state.goal is None:
             raise AgentError("agent has no active goal")
-        skill_name, parameters = self.planner.propose(
-            self.state.goal, observation, self.skill_registry.capabilities()
-        )
+        capabilities = self.skill_registry.capabilities()
+        skill_name, parameters = self._propose(observation, capabilities)
         if skill_name == TASK_COMPLETE:
             self.state.status = AgentStatus.DONE
             self.state.completion_message = parameters.get("message")
@@ -49,6 +59,21 @@ class Agent:
         action = skill.build_action(parameters)
         self.state.step_count += 1
         return action
+
+    def _propose(
+        self, observation: Observation, capabilities: list[Capability]
+    ) -> tuple[str, dict[str, Any]]:
+        """Tries the DecisionEngine (System 1) first when configured and
+        confident; otherwise falls through to the Planner (System 2) -
+        exactly the pre-Decision-layer call when decision_engine is None,
+        so Agent(registry, planner=X) with no decision_engine is unchanged."""
+        self.last_decision = None
+        if self.decision_engine is not None:
+            decision = self.decision_engine.decide(self.state.goal, observation, capabilities)
+            self.last_decision = decision
+            if decision.skill_name is not None and decision.confidence >= self.decision_confidence_threshold:
+                return decision.skill_name, decision.parameters
+        return self.planner.propose(self.state.goal, observation, capabilities)
 
     def record_result(self, action: Action, result: ActionResult) -> None:
         self.state.history.append(

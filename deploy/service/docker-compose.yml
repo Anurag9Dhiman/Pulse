@@ -1,0 +1,32 @@
+# Local development only: no TLS, no reverse proxy, single app replica.
+#   docker compose -f deploy/service/docker-compose.yml up --build
+# PAR_MASTER_KEY must be a Fernet key:
+#   python -c "from par.service.crypto import generate_master_key; print(generate_master_key())"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: par
+      POSTGRES_PASSWORD: par
+      POSTGRES_DB: par
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U par -d par"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: ../..
+      dockerfile: deploy/service/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://par:par@db:5432/par
+      PAR_MASTER_KEY: ${PAR_MASTER_KEY:?set PAR_MASTER_KEY to a Fernet key}
+      PAR_ADMIN_TOKEN: ${PAR_ADMIN_TOKEN:?set PAR_ADMIN_TOKEN}
+    ports:
+      - "8000:8000"
