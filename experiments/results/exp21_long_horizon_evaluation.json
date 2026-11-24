@@ -19,10 +19,10 @@
       "mean_recoveries": 1,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00024370578854965668,
-        "median": 0.00020116695668548346,
-        "stdev": 0.0001399297194295252,
-        "ci95_half_width": 7.081420847069694e-05
+        "mean": 0.00023690567031735553,
+        "median": 0.00020450000738492236,
+        "stdev": 8.82380456840888e-05,
+        "ci95_half_width": 4.4654612241018384e-05
       },
       "unsafe_execution_rate": 0.0,
       "sample_trajectory_first_12_steps": [
@@ -61,10 +61,10 @@
       "mean_recoveries": 2,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.0003756031879068663,
-        "median": 0.0003777919919230044,
-        "stdev": 2.4389416894932313e-05,
-        "ci95_half_width": 1.2342747913150265e-05
+        "mean": 0.000531558264628984,
+        "median": 0.0004305000038584694,
+        "stdev": 0.00028497771243347306,
+        "ci95_half_width": 0.00014421862074789663
       },
       "unsafe_execution_rate": 0.0,
       "sample_trajectory_first_12_steps": [
@@ -127,10 +127,10 @@
       "mean_recoveries": 4,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.0007957204613679399,
-        "median": 0.0008224590274039656,
-        "stdev": 8.519541835716305e-05,
-        "ci95_half_width": 4.3114830365474244e-05
+        "mean": 0.001004443533020094,
+        "median": 0.0010005399890360422,
+        "stdev": 2.5687572862439275e-05,
+        "ci95_half_width": 1.2999705475027008e-05
       },
       "unsafe_execution_rate": 0.0,
       "sample_trajectory_first_12_steps": [
@@ -193,10 +193,10 @@
       "mean_recoveries": 10,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.0023342095975143213,
-        "median": 0.00223607785301283,
-        "stdev": 0.0003673045042001997,
-        "ci95_half_width": 0.00018588172575990117
+        "mean": 0.0038607094645461376,
+        "median": 0.0038513750332640484,
+        "stdev": 4.7585406598517746e-05,
+        "ci95_half_width": 2.408153833773285e-05
       },
       "unsafe_execution_rate": 0.0,
       "sample_trajectory_first_12_steps": [
@@ -259,10 +259,10 @@
       "mean_recoveries": 20,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.005028525301410506,
-        "median": 0.005027334933402017,
-        "stdev": 5.0682272975968266e-05,
-        "ci95_half_width": 2.5648768960024805e-05
+        "mean": 0.011808876460418106,
+        "median": 0.01178178998088697,
+        "stdev": 0.00018609924527191756,
+        "ci95_half_width": 9.417921228350772e-05
       },
       "unsafe_execution_rate": 0.0,
       "sample_trajectory_first_12_steps": [

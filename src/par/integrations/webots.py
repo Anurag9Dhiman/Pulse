@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 
 _DEFAULT_URL = "ws://localhost:6001"
 
@@ -33,12 +34,28 @@ class WebotsBridge:
         self.url = url or os.environ.get("WEBOTS_BRIDGE_URL", _DEFAULT_URL)
 
     def get_observation_payload(self, timeout: float = 10.0) -> dict:
-        """Never raises: a failure comes back as an empty state with the
-        reason stashed in `raw.error`, since Observation has no success flag."""
+        """Never raises. A failure comes back as an empty state, but it is
+        now labelled as one: both channels are declared unavailable, so the
+        Safety Kernel denies motion instead of reading the empty detection
+        list as an empty world. Before that declaration existed, a bridge
+        timeout was indistinguishable from clear space and every move was
+        approved."""
         reply, error = self._request({"type": "get_observation"}, timeout)
         if error:
-            return {"robot_state": {}, "detections": [], "raw": {"error": error}}
-        return {"robot_state": reply.get("robot_state", {}), "detections": reply.get("detections", [])}
+            unavailable = {"available": False, "detail": f"webots bridge: {error}"}
+            return {
+                "robot_state": {},
+                "detections": [],
+                "channels": {"robot_state": unavailable, "detections": unavailable},
+                "raw": {"error": error},
+            }
+        captured_at = datetime.now(timezone.utc).isoformat()
+        healthy = {"available": True, "captured_at": captured_at}
+        return {
+            "robot_state": reply.get("robot_state", {}),
+            "detections": reply.get("detections", []),
+            "channels": {"robot_state": dict(healthy), "detections": dict(healthy)},
+        }
 
     def send_action(self, payload: dict, timeout: float = 30.0) -> dict:
         reply, error = self._request({"type": "action", **payload}, timeout)

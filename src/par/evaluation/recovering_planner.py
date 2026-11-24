@@ -18,12 +18,14 @@ claim about planning quality.
 """
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from par.core.action import Action, ActionResult
 from par.core.capability import Capability
 from par.core.observation import Observation
 from par.core.planner import TASK_COMPLETE, Planner
+from par.evaluation.recovery_strategies import DetourStrategy, RecoveryStrategy
 
 
 class RecoveringMovePlanner(Planner):
@@ -72,3 +74,119 @@ class RecoveringMovePlanner(Planner):
         target = self._candidate(self._attempts)
         self._attempts += 1
         return "move", {"x": target[0], "y": target[1], "z": target[2]}
+
+
+class GoalSeekingPlanner(Planner):
+    """Pursues a fixed goal, re-planning around Safety Kernel denials.
+
+    Unlike RecoveringMovePlanner, which stops at the first action that is
+    permitted, this planner keeps going until the robot is actually *at* the
+    goal. That distinction only becomes visible once task success is defined
+    as reaching the goal rather than as moving without colliding: a strategy
+    that retreats always produces a permitted action, and always stops short.
+
+    The recovery logic is supplied as a strategy object rather than written
+    in here, so the identical strategy can be run inside a recovery module
+    instead (see FixedRecoveryRuntime) and the two architectures compared
+    without also varying what recovery means.
+    """
+
+    def __init__(
+        self,
+        goal: tuple[float, float, float],
+        strategy: RecoveryStrategy | None = None,
+        tolerance: float = 0.05,
+        max_denials: int = 8,
+    ) -> None:
+        self._goal = goal
+        self._strategy = strategy or DetourStrategy()
+        self._tolerance = tolerance
+        self._max_denials = max_denials
+        self.reset()
+
+    def reset(self) -> None:
+        self._pending: list[tuple[float, float, float]] = []
+        self._last_denied = False
+        self._last_message: str | None = None
+        self.denial_count = 0
+
+    def record_result(self, action: Action, result: ActionResult) -> None:
+        self._last_denied = not result.success
+        self._last_message = result.message
+        if self._last_denied:
+            self.denial_count += 1
+
+    def _position(self, observation: Observation) -> tuple[float, float, float]:
+        current = observation.robot_state.get("position") or {"x": 0.0, "y": 0.0, "z": 0.0}
+        return (current.get("x", 0.0), current.get("y", 0.0), current.get("z", 0.0))
+
+    def propose(
+        self, goal: str, observation: Observation, capabilities: list[Capability]
+    ) -> tuple[str, dict[str, Any]]:
+        here = self._position(observation)
+
+        if math.dist(here, self._goal) <= self._tolerance:
+            return TASK_COMPLETE, {
+                "message": f"reached goal after {self.denial_count} denial(s)",
+                "success": True,
+            }
+
+        if self.denial_count >= self._max_denials:
+            return TASK_COMPLETE, {
+                "message": f"gave up after {self.denial_count} denials, last: {self._last_message}",
+                "success": False,
+            }
+
+        if not self._last_denied:
+            # Fresh situation (start, or a waypoint just reached): the goal
+            # itself is always the first thing worth proposing.
+            self._pending = []
+            return "move", {"x": self._goal[0], "y": self._goal[1], "z": self._goal[2]}
+
+        if not self._pending:
+            # Denied from here: ask the strategy how to get around it.
+            self._pending = list(self._strategy.candidates(self._goal, here, observation))
+        if not self._pending:
+            return TASK_COMPLETE, {
+                "message": f"no recovery candidates left, last: {self._last_message}",
+                "success": False,
+            }
+
+        candidate = self._pending.pop(0)
+        return "move", {"x": candidate[0], "y": candidate[1], "z": candidate[2]}
+
+
+class FixedGoalPlanner(Planner):
+    """Proposes the same goal every step and never adapts to a denial.
+
+    The counterpart to GoalSeekingPlanner for Experiment 4's recovery-module
+    configuration: all recovery must come from the runtime, so that the
+    comparison isolates where recovery lives rather than letting both sides
+    re-plan.
+    """
+
+    def __init__(self, goal: tuple[float, float, float], tolerance: float = 0.05, max_steps: int = 8) -> None:
+        self._goal = goal
+        self._tolerance = tolerance
+        self._max_steps = max_steps
+        self.reset()
+
+    def reset(self) -> None:
+        self._steps = 0
+        self.denial_count = 0
+
+    def record_result(self, action: Action, result: ActionResult) -> None:
+        if not result.success:
+            self.denial_count += 1
+
+    def propose(
+        self, goal: str, observation: Observation, capabilities: list[Capability]
+    ) -> tuple[str, dict[str, Any]]:
+        current = observation.robot_state.get("position") or {"x": 0.0, "y": 0.0, "z": 0.0}
+        here = (current.get("x", 0.0), current.get("y", 0.0), current.get("z", 0.0))
+        if math.dist(here, self._goal) <= self._tolerance:
+            return TASK_COMPLETE, {"message": "reached goal", "success": True}
+        if self._steps >= self._max_steps:
+            return TASK_COMPLETE, {"message": "exhausted steps short of goal", "success": False}
+        self._steps += 1
+        return "move", {"x": self._goal[0], "y": self._goal[1], "z": self._goal[2]}

@@ -23,6 +23,25 @@ class EnvironmentProfile(BaseModel):
     action_timeout_seconds: float
     approval_required: bool = False
     collision_margin: float = 0.2
+    # --- perception trust policy ---------------------------------------
+    # Both default off, and deliberately so: they express how much a
+    # deployment trusts its sensors, which is not a property PAR can
+    # choose on its operator's behalf. The failures that are unambiguous
+    # bugs - a malformed position, a detection the kernel cannot place, an
+    # adapter declaring its own sensor dead - are refused unconditionally
+    # by par.core.perception and need no flag.
+    #
+    # Oldest reading the kernel will reason about, in seconds. None
+    # disables the check: there is no defensible universal value, since a
+    # 1 Hz lidar and a 1 kHz joint encoder differ by three orders of
+    # magnitude.
+    observation_max_age_seconds: float | None = None
+    # When true, an adapter that declares nothing about a channel's health
+    # is treated as unknown rather than healthy, and motion depending on
+    # that channel is denied. Off by default so adapters written before
+    # the contract keep working; on, it closes the last fail-open path -
+    # an adapter that simply forgot to report.
+    require_declared_perception: bool = False
 
 
 def load_profile(name: str) -> EnvironmentProfile:

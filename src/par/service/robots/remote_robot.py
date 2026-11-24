@@ -15,7 +15,11 @@ class RemoteRobot(RobotInterface):
 
     Reuses the ros2_mapping wire schema unchanged. Never raises: a dead or
     silent connection becomes an empty observation with raw.error set, or a
-    failed ActionResult, the same convention WebotsBridge follows.
+    failed ActionResult, the same convention WebotsBridge follows. That
+    empty observation now also carries both perception channels marked
+    unavailable (inferred from raw.error by ros2_mapping), so the Safety
+    Kernel denies motion on it rather than reading a dropped connection as
+    a clear workspace.
     """
 
     def __init__(self, connection: RobotConnection, request_timeout: float = 30.0) -> None:
@@ -31,6 +35,12 @@ class RemoteRobot(RobotInterface):
             {
                 "robot_state": reply.get("robot_state") or {},
                 "detections": reply.get("detections") or [],
+                # Forwarded, not dropped: a tenant's bridge is the least
+                # trustworthy sensor source in the system, so when it
+                # declares a channel dead the Safety Kernel has to hear it.
+                # Dropping the block left a remote robot with a failed
+                # camera reporting an empty, apparently healthy world.
+                "channels": reply.get("channels") or {},
                 "raw": reply.get("raw") or {},
             }
         )

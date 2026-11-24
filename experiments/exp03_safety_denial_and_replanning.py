@@ -13,6 +13,7 @@ exactly the trials where recovery was actually needed.
 from __future__ import annotations
 
 import json
+import math
 import random
 from pathlib import Path
 
@@ -21,7 +22,8 @@ from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
 from par.evaluation.capture import CapturingTelemetryLogger
 from par.evaluation.metrics import rate, summarize
-from par.evaluation.recovering_planner import RecoveringMovePlanner
+from par.evaluation.recovering_planner import GoalSeekingPlanner
+from par.evaluation.recovery_strategies import DetourStrategy
 from par.robots.mock import MockRobot
 from par.safety.environment import load_profile
 from par.safety.kernel import SafetyKernel
@@ -44,12 +46,25 @@ def _registry(profile_name: str) -> SkillRegistry:
 def _run_trial(rng: random.Random, profile_name: str) -> dict:
     profile = load_profile(profile_name)
     robot = MockRobot()
-    # Obstacle placed at a randomized offset from the target - sometimes far
-    # enough away to never trigger a denial, sometimes squarely on it.
-    offset = rng.uniform(-0.3, 0.3)
-    robot.add_obstacle("obstacle", TARGET[0] + offset, TARGET[1] + offset, TARGET[2])
+    robot._objects.clear()  # drop MockRobot's demo scene; it also blocks this goal line
+    # Obstacle on the origin->target path, pushed sideways by a jitter wide
+    # enough that large values clear the path entirely: those trials never
+    # trigger a denial, which is what isolates RecoveryRate to the trials
+    # that actually needed recovery. Placing it *beside the target* instead
+    # (the previous design) left the target itself inside the collision
+    # margin, so no amount of re-planning could reach it.
+    fraction = rng.uniform(0.35, 0.65)
+    jitter = rng.uniform(-0.6, 0.6)
+    length = math.dist((0.0, 0.0, 0.0), TARGET)
+    perpendicular = (-TARGET[1] / length, TARGET[0] / length, 0.0)
+    robot.add_obstacle(
+        "obstacle",
+        TARGET[0] * fraction + perpendicular[0] * jitter,
+        TARGET[1] * fraction + perpendicular[1] * jitter,
+        TARGET[2],
+    )
 
-    planner = RecoveringMovePlanner(target=TARGET, max_attempts=MAX_ATTEMPTS)
+    planner = GoalSeekingPlanner(goal=TARGET, strategy=DetourStrategy())
     agent = Agent(_registry(profile_name), planner=planner)
     telemetry = CapturingTelemetryLogger()
     runtime = Runtime(agent, robot, safety_kernel=SafetyKernel(profile), telemetry=telemetry)
@@ -58,7 +73,11 @@ def _run_trial(rng: random.Random, profile_name: str) -> dict:
     runtime.close()
 
     experienced_denial = planner.denial_count > 0
-    final_success = bool(agent.state.reported_success) and (task_results[-1].success if task_results else False)
+    # Success means the robot is at the goal, not merely that its last action
+    # was permitted: a strategy that stops short would otherwise score as
+    # recovered.
+    final = robot.get_observation().robot_state["position"]
+    final_success = math.dist((final["x"], final["y"], final["z"]), TARGET) <= 0.05
 
     return {
         "experienced_denial": experienced_denial,
@@ -71,7 +90,7 @@ def _run_trial(rng: random.Random, profile_name: str) -> dict:
 
 def run() -> dict:
     rng = random.Random(SEED)
-    trials = [_run_trial(rng, "strict_simulation") for _ in range(N_TRIALS)]
+    trials = [_run_trial(rng, "simulation") for _ in range(N_TRIALS)]
 
     with_denial = [t for t in trials if t["experienced_denial"]]
     without_denial = [t for t in trials if not t["experienced_denial"]]
@@ -79,7 +98,7 @@ def run() -> dict:
 
     return {
         "experiment": "3_safety_denial_and_replanning",
-        "profile": "strict_simulation",
+        "profile": "simulation",
         "n_trials": N_TRIALS,
         "n_trials_with_denial": len(with_denial),
         "n_trials_without_denial": len(without_denial),

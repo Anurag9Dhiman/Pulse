@@ -38,18 +38,43 @@ class FixedRecoveryRuntime(Runtime):
     else exhausts immediately.
     """
 
-    def __init__(self, *args, max_recovery_attempts: int = 3, backoff: float = 0.5, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        max_recovery_attempts: int = 3,
+        backoff: float = 0.5,
+        strategy=None,
+        **kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self._max_recovery_attempts = max_recovery_attempts
         self._backoff = backoff
+        # When a strategy is supplied the module runs exactly the candidate
+        # sequence a planner would, so Experiment 4 varies only where the
+        # recovery lives. Default stays the original scale-down behaviour.
+        self._strategy = strategy
+
+    def _candidate_parameters(self, action: Action):
+        """Recovery candidates, as parameter dicts, for the denied action."""
+        goal = tuple(action.parameters.get(axis, 0.0) for axis in ("x", "y", "z"))
+        if self._strategy is None:
+            for attempt in range(1, self._max_recovery_attempts + 1):
+                scale = self._backoff**attempt
+                yield {axis: goal[i] * scale for i, axis in enumerate(("x", "y", "z"))}
+            return
+        observation = self.robot.get_observation()
+        current = observation.robot_state.get("position") or {"x": 0.0, "y": 0.0, "z": 0.0}
+        origin = (current.get("x", 0.0), current.get("y", 0.0), current.get("z", 0.0))
+        for candidate in self._strategy.candidates(goal, origin, observation):
+            yield {axis: candidate[i] for i, axis in enumerate(("x", "y", "z"))}
 
     def _handle_denial(self, action: Action, decision: SafetyDecision) -> ActionResult:
         if action.skill_name == "move" and self.safety_kernel is not None:
             capability = self.agent.skill_registry.get(action.skill_name).capability
-            for attempt in range(1, self._max_recovery_attempts + 1):
-                scale = self._backoff**attempt
-                scaled_params = {axis: action.parameters.get(axis, 0.0) * scale for axis in ("x", "y", "z")}
-                retry_action = action.model_copy(update={"parameters": scaled_params})
+            for attempt, retry_params in enumerate(self._candidate_parameters(action), start=1):
+                if attempt > self._max_recovery_attempts:
+                    break
+                retry_action = action.model_copy(update={"parameters": retry_params})
                 observation = self.robot.get_observation()
                 retry_decision = self.safety_kernel.check(retry_action, observation, capability)
                 if retry_decision.outcome in (PolicyOutcome.ALLOW, PolicyOutcome.MODIFY):

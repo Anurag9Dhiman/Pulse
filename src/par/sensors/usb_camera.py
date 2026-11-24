@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from typing import Any, Callable
 
 from par.sensors.base import CameraSource
@@ -26,14 +28,26 @@ class USBCamera(CameraSource):
     ) -> None:
         if cv2 is None:
             raise RuntimeError("opencv-python is not installed. Install it with `pip install par[camera]`.")
+        self._device_index = device_index
         self._capture = cv2.VideoCapture(device_index)
         self._detector = detector or (lambda frame: [])
 
     def capture(self) -> dict[str, Any]:
         ok, frame = self._capture.read()
         if not ok:
-            return {"detections": []}
-        return {"detections": self._detector(frame)}
+            # Declared, not silent. An unplugged or stalled camera used to
+            # return an empty detection list, which the Safety Kernel read
+            # as a clear workspace and approved motion through.
+            return {
+                "detections": [],
+                "available": False,
+                "detail": f"cv2 VideoCapture.read() failed on device {self._device_index}",
+            }
+        return {
+            "detections": self._detector(frame),
+            "available": True,
+            "captured_at": datetime.now(timezone.utc),
+        }
 
     def release(self) -> None:
         self._capture.release()

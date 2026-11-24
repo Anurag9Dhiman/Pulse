@@ -9,7 +9,7 @@
     10
   ],
   "n_trials_per_level": 15,
-  "max_attempts": 12,
+  "max_attempts": 24,
   "results_by_n_violations": {
     "0": {
       "n_trials": 15,
@@ -17,10 +17,10 @@
       "n_successful_recoveries_mean": 0.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 7.378040075612565e-05,
-        "median": 5.604198668152094e-05,
-        "stdev": 6.280952350143396e-05,
-        "ci95_half_width": 3.178600449789221e-05
+        "mean": 8.47804665681906e-05,
+        "median": 6.86249986756593e-05,
+        "stdev": 5.741511117835886e-05,
+        "ci95_half_width": 2.905605520348567e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -28,13 +28,13 @@
     "1": {
       "n_trials": 15,
       "probability_eventual_completion": 1.0,
-      "n_successful_recoveries_mean": 1.0,
+      "n_successful_recoveries_mean": 3.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 7.221940128753583e-05,
-        "median": 6.733299233019352e-05,
-        "stdev": 1.2246881908137771e-05,
-        "ci95_half_width": 6.197777370629702e-06
+        "mean": 0.00018453060183674098,
+        "median": 0.00017908299923874438,
+        "stdev": 3.0588574645329015e-05,
+        "ci95_half_width": 1.5479954584249342e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -42,13 +42,13 @@
     "2": {
       "n_trials": 15,
       "probability_eventual_completion": 1.0,
-      "n_successful_recoveries_mean": 2.0,
+      "n_successful_recoveries_mean": 4.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 8.27247315707306e-05,
-        "median": 8.099997648969293e-05,
-        "stdev": 6.948194703909405e-06,
-        "ci95_half_width": 3.5162716702611657e-06
+        "mean": 0.0001913585345998096,
+        "median": 0.00018470898794475943,
+        "stdev": 1.3056076796288492e-05,
+        "ci95_half_width": 6.607286485180507e-06
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -56,13 +56,13 @@
     "3": {
       "n_trials": 15,
       "probability_eventual_completion": 1.0,
-      "n_successful_recoveries_mean": 3.0,
+      "n_successful_recoveries_mean": 5.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00010550519800744951,
-        "median": 0.00010203997953794897,
-        "stdev": 1.088864669777615e-05,
-        "ci95_half_width": 5.510415516901193e-06
+        "mean": 0.00023996980113831037,
+        "median": 0.00023300199973164126,
+        "stdev": 2.8819784108084153e-05,
+        "ci95_half_width": 1.4584823068542004e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -70,13 +70,13 @@
     "5": {
       "n_trials": 15,
       "probability_eventual_completion": 1.0,
-      "n_successful_recoveries_mean": 5.0,
+      "n_successful_recoveries_mean": 7.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00012768899517444273,
-        "median": 0.00012554199201986194,
-        "stdev": 6.231573833809399e-06,
-        "ci95_half_width": 3.1536114727234126e-06
+        "mean": 0.00030458866822300477,
+        "median": 0.0002947920002043247,
+        "stdev": 2.7081476943996552e-05,
+        "ci95_half_width": 1.3705118268120371e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -84,13 +84,13 @@
     "10": {
       "n_trials": 15,
       "probability_eventual_completion": 1.0,
-      "n_successful_recoveries_mean": 10.0,
+      "n_successful_recoveries_mean": 12.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.0002108255944525202,
-        "median": 0.00021104302140884101,
-        "stdev": 2.056016583048004e-05,
-        "ci95_half_width": 1.0404879501277032e-05
+        "mean": 0.000531663999815161,
+        "median": 0.0005279570104903542,
+        "stdev": 2.931341808477081e-05,
+        "ci95_half_width": 1.4834636328197066e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0

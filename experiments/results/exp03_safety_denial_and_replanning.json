@@ -1,24 +1,24 @@
 {
   "experiment": "3_safety_denial_and_replanning",
-  "profile": "strict_simulation",
+  "profile": "simulation",
   "n_trials": 200,
-  "n_trials_with_denial": 133,
-  "n_trials_without_denial": 67,
+  "n_trials_with_denial": 106,
+  "n_trials_without_denial": 94,
   "recovery_rate": 1.0,
   "final_task_success_rate_overall": 1.0,
   "replanning_steps_when_denied": {
-    "n": 133,
-    "mean": 1.8421052631578947,
-    "median": 2,
-    "stdev": 0.8150302584377215,
-    "ci95_half_width": 0.13851728906081298
+    "n": 106,
+    "mean": 2.292452830188679,
+    "median": 2.0,
+    "stdev": 1.1949654797331253,
+    "ci95_half_width": 0.2274880029880711
   },
   "denials_per_successful_task": {
-    "n": 133,
-    "mean": 1.8421052631578947,
-    "median": 2,
-    "stdev": 0.8150302584377215,
-    "ci95_half_width": 0.13851728906081298
+    "n": 106,
+    "mean": 2.292452830188679,
+    "median": 2.0,
+    "stdev": 1.1949654797331253,
+    "ci95_half_width": 0.2274880029880711
   },
   "notes": [
     "Uses a deterministic rule-based re-planner for statistical volume, not a live LLM - see recovering_planner.py docstring. Live LLM re-planning (Gemini) is validated qualitatively with a real example in the paper, not re-run here at volume to avoid spending API quota reconfirming an already-established result.",

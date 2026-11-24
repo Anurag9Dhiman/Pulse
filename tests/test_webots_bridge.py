@@ -106,3 +106,68 @@ def test_dock_hooks_never_raise_even_if_bridge_reports_failure():
 
     robot.begin_computer_use()
     robot.end_computer_use()
+
+
+def test_a_bridge_failure_marks_both_channels_unavailable_instead_of_reporting_an_empty_world():
+    # WebotsBridge returns an empty robot_state/detections on a transport
+    # failure and always has. What is new is that the emptiness is
+    # labelled: unlabelled, it was indistinguishable from a healthy bridge
+    # reporting a clear workspace.
+    bridge = _FakeBridge(
+        observation_payload={
+            "robot_state": {},
+            "detections": [],
+            "channels": {
+                "robot_state": {"available": False, "detail": "webots bridge: timed out"},
+                "detections": {"available": False, "detail": "webots bridge: timed out"},
+            },
+            "raw": {"error": "timed out"},
+        },
+        action_reply={},
+    )
+
+    observation = WebotsRobot(bridge=bridge).get_observation()
+
+    assert observation.channels["detections"].available is False
+    assert "timed out" in observation.channels["detections"].detail
+
+
+def test_a_bridge_that_only_reports_raw_error_still_has_its_channels_inferred_as_unavailable():
+    # Belt and braces for any bridge predating the channels block: the
+    # presence of raw.error is itself proof that nothing was observed.
+    bridge = _FakeBridge(observation_payload={"raw": {"error": "connection refused"}}, action_reply={})
+
+    observation = WebotsRobot(bridge=bridge).get_observation()
+
+    assert observation.channels["robot_state"].available is False
+    assert observation.channels["detections"].available is False
+
+
+def test_the_safety_kernel_denies_a_move_built_on_a_failed_bridge_observation():
+    """End to end, the case that used to be approved: the bridge is down,
+    so PAR knows nothing about the world, and the kernel must refuse to
+    certify motion through it."""
+    from par.core.capability import Capability
+    from par.safety.environment import EnvironmentProfile, Workspace
+    from par.safety.kernel import SafetyKernel
+    from par.safety.policy import PolicyOutcome
+
+    bridge = _FakeBridge(observation_payload={"raw": {"error": "connection refused"}}, action_reply={})
+    observation = WebotsRobot(bridge=bridge).get_observation()
+    kernel = SafetyKernel(
+        EnvironmentProfile(
+            name="test",
+            workspace=Workspace(x=(-1.0, 1.0), y=(-1.0, 1.0), z=(0.0, 2.0)),
+            max_velocity=10.0,
+            action_timeout_seconds=1.0,
+        )
+    )
+
+    decision = kernel.check(
+        _action("move", {"x": 0.2, "y": 0.0, "z": 0.0}),
+        observation,
+        Capability(name="move", description="move", env_profiles=["test"]),
+    )
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "connection refused" in decision.reason

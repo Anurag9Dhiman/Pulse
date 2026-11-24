@@ -23,7 +23,7 @@
     {
       "label": "collision",
       "success": false,
-      "message": "collision risk: target (0.5, -0.5, 0.0) is within 0.5m of detected object 'obstacle'"
+      "message": "collision risk: path (0.0, 0.0, 0.0) -> (0.5, -0.5, 0.0) passes within 0.495m of detected object 'red_object' (margin 0.5m)"
     },
     {
       "label": "unavailable_capability",
@@ -48,7 +48,7 @@
     {
       "label": "collision",
       "success": false,
-      "message": "collision risk: target (0.5, -0.5, 0.0) is within 0.5m of detected object 'obstacle'"
+      "message": "collision risk: path (0.0, 0.0, 0.0) -> (0.5, -0.5, 0.0) passes within 0.495m of detected object 'red_object' (margin 0.5m)"
     },
     {
       "label": "unavailable_capability",
@@ -73,7 +73,7 @@
     {
       "label": "collision",
       "success": false,
-      "message": "collision risk: target (0.5, -0.5, 0.0) is within 0.5m of detected object 'obstacle'"
+      "message": "collision risk: path (0.0, 0.0, 0.0) -> (0.5, -0.5, 0.0) passes within 0.495m of detected object 'red_object' (margin 0.5m)"
     },
     {
       "label": "unavailable_capability",
@@ -98,7 +98,7 @@
     {
       "label": "collision",
       "success": false,
-      "message": "collision risk: target (0.5, -0.5, 0.0) is within 0.5m of detected object 'obstacle'"
+      "message": "collision risk: path (0.0, 0.0, 0.0) -> (0.5, -0.5, 0.0) passes within 0.495m of detected object 'red_object' (margin 0.5m)"
     },
     {
       "label": "unavailable_capability",
@@ -123,7 +123,7 @@
     {
       "label": "collision",
       "success": false,
-      "message": "collision risk: target (0.5, -0.5, 0.0) is within 0.5m of detected object 'obstacle'"
+      "message": "collision risk: path (0.0, 0.0, 0.0) -> (0.5, -0.5, 0.0) passes within 0.495m of detected object 'red_object' (margin 0.5m)"
     },
     {
       "label": "unavailable_capability",

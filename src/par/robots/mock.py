@@ -5,7 +5,8 @@ from typing import Any
 from uuid import uuid4
 
 from par.core.action import Action, ActionResult
-from par.core.observation import Observation
+from par.core.observation import ChannelReport, Observation
+from par.core.perception import PERCEPTION, PROPRIOCEPTION
 from par.robots.base import RobotInterface
 
 
@@ -25,12 +26,21 @@ class MockRobot(RobotInterface):
         self._objects[name] = {"position": {"x": x, "y": y, "z": z}}
 
     def get_observation(self) -> Observation:
+        # Both channels are declared available with the current time: this
+        # robot *is* the world model, so its report is ground truth read
+        # synchronously. Declaring it explicitly is what lets a strict
+        # profile (require_declared_perception) run against MockRobot at
+        # all - under that policy an adapter that stays silent about its
+        # sensors is treated as blind.
+        now = datetime.now(timezone.utc)
+        healthy = ChannelReport(available=True, captured_at=now)
         return Observation(
             observation_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=now,
             source="mock",
             robot_state={"position": dict(self._position), "holding": self._holding},
             detections=[{"name": name, **info} for name, info in self._objects.items()],
+            channels={PROPRIOCEPTION: healthy, PERCEPTION: healthy},
         )
 
     def execute(self, action: Action) -> ActionResult:
