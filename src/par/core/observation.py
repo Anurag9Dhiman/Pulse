@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 class Observation(BaseModel):
     observation_id: str
     timestamp: datetime
-    source: Literal["mock", "ros2", "camera"]
+    source: Literal["mock", "ros2", "camera", "mujoco"]
     robot_state: dict[str, Any] = Field(default_factory=dict)
     detections: list[dict[str, Any]] = Field(default_factory=list)
     raw: dict[str, Any] = Field(default_factory=dict)

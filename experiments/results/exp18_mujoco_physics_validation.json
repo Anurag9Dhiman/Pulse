@@ -1,0 +1,42 @@
+{
+  "experiment": "18_mujoco_physics_validation",
+  "simulator": "MuJoCo",
+  "n_trials": 300,
+  "seed": 18,
+  "robot_radius": 0.08,
+  "obstacle_radius": 0.12,
+  "collision_margin": 0.24,
+  "results": {
+    "swept": {
+      "kernel": "swept (PAR)",
+      "counts": {
+        "prevented": 123,
+        "permitted": 153,
+        "unsafe_execution": 0,
+        "over_cautious": 24
+      },
+      "n": 300,
+      "unsafe_execution_rate": 0.0,
+      "interception_rate": 1.0,
+      "false_denial_rate": 0.13559322033898305,
+      "n_truly_colliding": 123,
+      "n_truly_clear": 177
+    },
+    "endpoint_only": {
+      "kernel": "endpoint-only (superseded)",
+      "counts": {
+        "prevented": 30,
+        "permitted": 176,
+        "unsafe_execution": 93,
+        "over_cautious": 1
+      },
+      "n": 300,
+      "unsafe_execution_rate": 0.7560975609756098,
+      "interception_rate": 0.24390243902439024,
+      "false_denial_rate": 0.005649717514124294,
+      "n_truly_colliding": 123,
+      "n_truly_clear": 177
+    }
+  },
+  "notes": "Ground truth is MuJoCo's contact solver, computed by executing every proposed motion in its own simulation regardless of the kernel's verdict. unsafe_execution_rate is over configurations that genuinely collide; false_denial_rate is over configurations that genuinely do not."
+}

@@ -13,6 +13,7 @@ random obstacle placement happens to produce roughly N denials.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from par.core.agent import Agent
@@ -20,7 +21,8 @@ from par.core.runtime import Runtime
 from par.core.skill import SkillRegistry
 from par.evaluation.capture import CapturingTelemetryLogger
 from par.evaluation.metrics import rate, summarize
-from par.evaluation.recovering_planner import RecoveringMovePlanner
+from par.evaluation.recovering_planner import GoalSeekingPlanner
+from par.evaluation.recovery_strategies import DetourStrategy
 from par.robots.mock import MockRobot
 from par.safety.environment import EnvironmentProfile, Workspace
 from par.safety.kernel import SafetyKernel
@@ -30,7 +32,9 @@ N_VIOLATIONS_LEVELS = [0, 1, 2, 3, 5, 10]
 N_TRIALS_PER_LEVEL = 15
 TARGET = (1.0, 1.0, 0.0)  # ~0.94m from red_object(0.5,0.2,0) - already outside any margin used here
 STEP = 0.3
-MAX_ATTEMPTS = 12  # must exceed the largest N_violations level to leave room to succeed
+MAX_ATTEMPTS = 24  # generous headroom over the largest N_violations level, so this
+                   # measures whether the loop keeps recovering, not where an
+                   # arbitrary attempt budget happens to cut it off
 PROFILE_NAME = "scaling_test"
 
 
@@ -58,30 +62,41 @@ def _registry() -> SkillRegistry:
 
 def _run_trial(n_violations: int) -> dict:
     robot = MockRobot()
-    for i in range(n_violations):
-        candidate = (TARGET[0] + STEP * i, TARGET[1] + STEP * i, TARGET[2])
-        robot.add_obstacle(f"obstacle_{i}", *candidate)
+    robot._objects.clear()  # control the scene; MockRobot's demo objects also sit near this goal line
+
+    # Force exactly n_violations denials by blocking the direct path and then
+    # each of the planner's own first fallback candidates. Obstacles are read
+    # off the strategy rather than hardcoded, so this stays aligned if the
+    # strategy changes - the previous version hardcoded the superseded
+    # "extend" geometry, and silently stopped forcing denials once the
+    # collision test became path-based.
+    strategy = DetourStrategy(max_candidates=n_violations + 4)
+    origin = (0.0, 0.0, 0.0)
+    blocked = []
+    if n_violations > 0:
+        midpoint = tuple((origin[i] + TARGET[i]) / 2.0 for i in range(3))
+        blocked.append(midpoint)  # blocks the direct move
+        candidates = list(strategy.candidates(TARGET, origin, robot.get_observation()))
+        blocked.extend(candidates[: n_violations - 1])
+    for i, point in enumerate(blocked):
+        robot.add_obstacle(f"obstacle_{i}", *point)
 
     profile = _profile()
-    # step=STEP is critical here, not cosmetic: obstacles above are placed at
-    # exactly target + STEP*i to align with the planner's own candidate
-    # sequence. RecoveringMovePlanner's default step (0.15) doesn't match
-    # this experiment's STEP (0.3) - candidate(1) would land at (1.15, 1.15),
-    # narrowly missing both obstacle_0 and obstacle_1 instead of landing
-    # exactly on the one placed for it, breaking the "exactly N forced
-    # denials" guarantee this experiment depends on.
-    planner = RecoveringMovePlanner(target=TARGET, max_attempts=MAX_ATTEMPTS, step=STEP)
+    planner = GoalSeekingPlanner(goal=TARGET, strategy=strategy, max_denials=MAX_ATTEMPTS)
     agent = Agent(_registry(), planner=planner)
     telemetry = CapturingTelemetryLogger()
     runtime = Runtime(agent, robot, safety_kernel=SafetyKernel(profile), telemetry=telemetry)
 
-    results = runtime.run_task("move to target", max_steps=MAX_ATTEMPTS + 2)
+    runtime.run_task("move to target", max_steps=MAX_ATTEMPTS + 8)
     runtime.close()
 
+    final = robot.get_observation().robot_state["position"]
+    reached = math.dist((final["x"], final["y"], final["z"]), TARGET) <= 0.05
+
     return {
-        "eventual_completion": bool(agent.state.reported_success),
+        "eventual_completion": reached,
         "n_denials": planner.denial_count,
-        "n_repeated_failures": max(0, planner.denial_count - n_violations),  # denials beyond the engineered obstacles
+        "n_repeated_failures": max(0, planner.denial_count - n_violations),
         "cumulative_latency": sum(e.latency_seconds for e in telemetry.events),
         "unsafe_execution": False,  # by construction: every candidate is either denied or genuinely clear
         "planner_terminated_honestly": agent.state.status.value == "done" and agent.state.reported_success is False,

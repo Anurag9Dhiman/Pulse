@@ -3,33 +3,33 @@
   "n_trials": 500,
   "t_admission": {
     "n": 500,
-    "mean": 4.95346321258694e-07,
-    "median": 4.590037860907614e-07,
-    "stdev": 1.8136584273025876e-07,
+    "mean": 4.877699830103666e-07,
+    "median": 4.5900014811195433e-07,
+    "stdev": 1.8667338114036816e-07,
     "p95": 5.420006345957518e-07
   },
   "t_policy": {
     "n": 500,
-    "mean": 1.1555842647794633e-06,
-    "median": 1.0840012691915035e-06,
-    "stdev": 3.617029436310488e-07,
-    "p95": 1.291002263315022e-06
+    "mean": 3.9393020852003245e-06,
+    "median": 3.6250003176974133e-06,
+    "stdev": 3.571475154341038e-06,
+    "p95": 4.1669991333037615e-06
   },
   "t_execution_mock_robot": {
     "n": 500,
-    "mean": 1.2414761004038156e-06,
-    "median": 1.167005393654108e-06,
-    "stdev": 3.714859157578641e-07,
-    "p95": 1.4160032151266932e-06
+    "mean": 1.3474319675879087e-06,
+    "median": 1.290998625336215e-06,
+    "stdev": 4.514299344053699e-07,
+    "p95": 1.5420009731315076e-06
   },
   "t_logging_serialization": {
     "n": 500,
-    "mean": 1.1879359954036772e-06,
-    "median": 1.0420044418424368e-06,
-    "stdev": 1.5139281091476362e-06,
-    "p95": 1.2090022210031748e-06
+    "mean": 1.1573179945116862e-06,
+    "median": 1.1249994713580236e-06,
+    "stdev": 4.155467051334793e-07,
+    "p95": 1.2500004231696948e-06
   },
-  "par_overhead_seconds_mean": 2.8388665814418342e-06,
+  "par_overhead_seconds_mean": 5.584390062722378e-06,
   "t_llm_reference": {
     "source": "paper/par_paper.tex Table I - live gemini-3.1-flash-lite, not re-measured here",
     "range_seconds": [
@@ -39,8 +39,8 @@
     "note": "not measured in this run - see source"
   },
   "par_overhead_as_fraction_of_t_llm": {
-    "vs_fastest_llm_call": 3.548583226802293e-06,
-    "vs_slowest_llm_call": 2.0277618438870244e-06
+    "vs_fastest_llm_call": 6.980487578402972e-06,
+    "vs_slowest_llm_call": 3.9888500448016986e-06
   },
   "configurations": {
     "direct_execution": "T_execution only (no Admission, no Policy Guard, no PAR logging)",

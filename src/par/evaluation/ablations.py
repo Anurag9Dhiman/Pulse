@@ -33,7 +33,7 @@ class NoWorkspaceCheckKernel(SafetyKernel):
 class NoCollisionCheckKernel(SafetyKernel):
     """Ablation 4: collision-margin is never checked."""
 
-    def _check_collision(self, target, observation):
+    def _check_collision(self, origin, target, observation):
         return None
 
 
@@ -41,7 +41,7 @@ class NoVelocityCheckKernel(SafetyKernel):
     """Ablation 5: velocity is never checked - an over-limit move is ALLOWED
     unmodified, not clamped and not denied."""
 
-    def _check_velocity(self, target, observation):
+    def _check_velocity(self, origin, target):
         return None
 
 

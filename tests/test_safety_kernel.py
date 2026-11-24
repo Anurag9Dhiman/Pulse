@@ -134,3 +134,94 @@ def test_check_escalates_high_risk_action_when_approval_required():
     )
     decision = kernel.check(action, _observation(), capability)
     assert decision.outcome == PolicyOutcome.ESCALATE
+
+
+# --------------------------------------------------------------------------
+# Trajectory-level safety. Both cases below passed the endpoint-only collision
+# test that preceded them, which is why the benchmark (whose collision cases
+# place the obstacle exactly at the target) never exposed either one.
+# --------------------------------------------------------------------------
+
+
+def _observation_with_obstacle(
+    position: tuple[float, float, float], obstacle: tuple[float, float, float]
+) -> Observation:
+    return Observation(
+        observation_id="o1",
+        timestamp=datetime.now(timezone.utc),
+        source="mock",
+        robot_state={"position": {"x": position[0], "y": position[1], "z": position[2]}},
+        detections=[
+            {"name": "obstacle", "position": {"x": obstacle[0], "y": obstacle[1], "z": obstacle[2]}}
+        ],
+    )
+
+
+def test_move_whose_path_crosses_an_obstacle_is_denied_though_its_endpoint_is_clear():
+    # The endpoint (0.9,0,0) sits 0.9m from the obstacle, far outside the
+    # margin; only sweeping the segment reveals that the robot would have to
+    # drive straight over it to get there.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _observation_with_obstacle((-0.9, 0.0, 0.0), (0.0, 0.0, 0.0))
+
+    decision = kernel.check(_move_action(0.9, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "collision" in decision.reason
+
+
+def test_obstacle_behind_the_robot_does_not_block_a_move_away_from_it():
+    # The guard against over-correcting: measuring to the infinite line
+    # rather than the segment would deny this, since the obstacle is
+    # collinear with the direction of travel but in the opposite direction.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _observation_with_obstacle((0.0, 0.0, 0.0), (-0.5, 0.0, 0.0))
+
+    decision = kernel.check(_move_action(0.4, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.ALLOW
+
+
+def test_modify_never_returns_a_clamped_target_the_kernel_would_itself_deny():
+    """The soundness property MODIFY must satisfy: whatever it hands back has
+    to pass the same checks a planner-proposed action would. Before the swept
+    collision test, clamping a long over-speed move could land the robot on an
+    obstacle that the original distant target cleared."""
+    kernel = SafetyKernel(_PROFILE)
+    reach = _PROFILE.max_velocity * _PROFILE.action_timeout_seconds
+    # The obstacle sits exactly where the clamp lands.
+    observation = _observation_with_obstacle((0.0, 0.0, 0.0), (reach, 0.0, 0.0))
+
+    decision = kernel.check(_move_action(1.0, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    if decision.modified_parameters is not None:
+        clamped = _move_action(**decision.modified_parameters)
+        assert kernel.check(clamped, observation, _MOVE_CAPABILITY).outcome != PolicyOutcome.DENY
+
+
+def test_a_clamped_move_along_a_clear_path_is_still_modified_not_denied():
+    # Re-validation must not turn every clamp into a denial: with no obstacle
+    # on the segment, an over-speed move still clamps and proceeds.
+    kernel = SafetyKernel(_PROFILE)
+
+    decision = kernel.check(_move_action(1.0, 0.0, 0.0), _observation(), _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.MODIFY
+    reach = _PROFILE.max_velocity * _PROFILE.action_timeout_seconds
+    assert decision.modified_parameters["x"] == pytest.approx(reach)
+
+
+def test_clamping_is_revalidated_when_the_robot_starts_outside_the_workspace():
+    """The one case the subset argument does not cover. Clamping is safe
+    because the clamped target lies on the validated segment - but if the
+    robot is already outside the workspace, that segment starts outside it,
+    so the clamped point can be outside too and must be re-checked."""
+    kernel = SafetyKernel(_PROFILE)
+    # Robot parked beyond the x bound; the requested target is inside.
+    observation = _observation((-3.0, 0.0, 0.0))
+
+    decision = kernel.check(_move_action(0.5, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "still unsafe" in decision.reason

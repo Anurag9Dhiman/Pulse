@@ -24,6 +24,7 @@ from statistics import mean
 from typing import Any
 
 import json
+import math
 from pathlib import Path
 
 from par.core.action import Action, ActionResult
@@ -91,6 +92,33 @@ def _waypoints(horizon: int) -> list[tuple[float, float, float]]:
     return [(-0.2 - WAYPOINT_STEP * i, -0.2 - WAYPOINT_STEP * i, 0.0) for i in range(horizon)]
 
 
+def _approach_origin(waypoints: list[tuple[float, float, float]], index: int) -> tuple[float, float, float]:
+    return (0.0, 0.0, 0.0) if index == 0 else waypoints[index - 1]
+
+
+def _nudge_candidate(
+    origin: tuple[float, float, float], waypoint: tuple[float, float, float], attempt: int
+) -> tuple[float, float, float]:
+    """Step *sideways* off a blocked waypoint, alternating sides.
+
+    Nudging along the direction of travel (the original design) cannot clear
+    an obstacle sitting on the route: it parks the robot just short of the
+    obstacle, and every subsequent leg then has to cross it. Only a lateral
+    offset gets the robot past. This only became visible once the collision
+    test swept the path instead of testing the endpoint.
+    """
+    if attempt == 0:
+        return waypoint
+    direction = tuple(waypoint[i] - origin[i] for i in range(3))
+    length = math.dist(origin, waypoint)
+    if length == 0.0:
+        return waypoint
+    perpendicular = (-direction[1] / length, direction[0] / length, 0.0)
+    magnitude = NUDGE_STEP * ((attempt + 1) // 2)
+    side = 1.0 if attempt % 2 else -1.0
+    return tuple(waypoint[i] + perpendicular[i] * magnitude * side for i in range(3))
+
+
 class _LongHorizonPlanner(Planner):
     def __init__(self, waypoints: list[tuple[float, float, float]]) -> None:
         self._waypoints = waypoints
@@ -128,10 +156,7 @@ class _LongHorizonPlanner(Planner):
             self._last_failed = True
 
     def _candidate(self, waypoint: tuple[float, float, float], attempt: int) -> tuple[float, float, float]:
-        if attempt == 0:
-            return waypoint
-        offset = NUDGE_STEP * attempt
-        return (waypoint[0] + offset, waypoint[1] + offset, waypoint[2])
+        return _nudge_candidate(_approach_origin(self._waypoints, self._index), waypoint, attempt)
 
     def propose(
         self, goal: str, observation: Observation, capabilities: list[Capability]
@@ -150,6 +175,7 @@ class _LongHorizonPlanner(Planner):
 def _place_obstacles(robot: MockRobot, waypoints: list[tuple[float, float, float]]) -> int:
     """Places obstacles per the module docstring. Returns the count of
     waypoints that are "hard" (need 2 nudges), for expected-value checks."""
+    robot._objects.clear()  # controlled scene: drop MockRobot's demo objects
     blocked_count = 0
     n_hard = 0
     for i, wp in enumerate(waypoints):
@@ -161,7 +187,7 @@ def _place_obstacles(robot: MockRobot, waypoints: list[tuple[float, float, float
             # Hard case: also block the first nudge candidate so recovery
             # needs a second nudge - this is what makes repeated-denial
             # frequency a genuine, non-vacuous metric in this experiment.
-            first_nudge = (wp[0] + NUDGE_STEP, wp[1] + NUDGE_STEP, wp[2])
+            first_nudge = _nudge_candidate(_approach_origin(waypoints, i), wp, 1)
             robot.add_obstacle(f"obstacle_{i}_hard", *first_nudge)
             n_hard += 1
     return n_hard

@@ -13,73 +13,73 @@
   ],
   "results_by_level": {
     "none": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 0.0,
-        "median": 0.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 3.0,
-        "median": 3.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }
     },
     "one_obstacle": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 2.0,
-        "median": 2.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 5.0,
-        "median": 5.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }
     },
     "multiple_obstacles": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 3.0,
-        "median": 3.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 6.0,
-        "median": 6.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }
     },
     "moving_obstacle": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 2.0,
-        "median": 2.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 5.0,
-        "median": 5.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }
@@ -103,37 +103,37 @@
       }
     },
     "changed_velocity": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 0.0,
-        "median": 0.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 3.0,
-        "median": 3.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }
     },
     "capability_restricted": {
-      "task_success_rate": 1.0,
+      "task_success_rate": 0.0,
       "unsafe_execution_rate": 0.0,
       "replanning_steps": {
         "n": 60,
-        "mean": 1.0,
-        "median": 1.0,
+        "mean": 8.0,
+        "median": 8.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       },
       "recovery_time_actions": {
         "n": 60,
-        "mean": 4.0,
-        "median": 4.0,
+        "mean": 10.0,
+        "median": 10.0,
         "stdev": 0.0,
         "ci95_half_width": 0.0
       }

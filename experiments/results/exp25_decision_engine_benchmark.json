@@ -11,10 +11,10 @@
   "all_goals_matched_expectation": true,
   "latency_stats_seconds": {
     "n": 18,
-    "mean": 1.2223366259907682e-06,
-    "median": 9.580107871443033e-07,
-    "stdev": 7.620473629039334e-07,
-    "p95": 2.2920139599591494e-06
+    "mean": 1.2893329363174012e-06,
+    "median": 9.57999873207882e-07,
+    "stdev": 1.1289328100635958e-06,
+    "p95": 2.333999873371795e-06
   },
   "per_goal": [
     {
@@ -25,7 +25,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 3.9590231608599424e-06
+      "latency_seconds": 5.583000529441051e-06
     },
     {
       "goal": "stop now",
@@ -35,7 +35,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 2.2920139599591494e-06
+      "latency_seconds": 2.333999873371795e-06
     },
     {
       "goal": "please stop",
@@ -45,7 +45,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 1.4170072972774506e-06
+      "latency_seconds": 1.4159995771478862e-06
     },
     {
       "goal": "detect objects nearby",
@@ -55,7 +55,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 1.1249794624745846e-06
+      "latency_seconds": 1.0829990060301498e-06
     },
     {
       "goal": "detect what is around",
@@ -65,7 +65,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 1.0420044418424368e-06
+      "latency_seconds": 1.0000003385357559e-06
     },
     {
       "goal": "run detect",
@@ -75,7 +75,7 @@
       "decision_confidence": 1.0,
       "matches_expectation": true,
       "agrees_with_planner": true,
-      "latency_seconds": 1.0420044418424368e-06
+      "latency_seconds": 9.57999873207882e-07
     },
     {
       "goal": "pick the red_object",
@@ -85,7 +85,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 1.0830117389559746e-06
+      "latency_seconds": 1.1249994713580236e-06
     },
     {
       "goal": "pick up blue_container",
@@ -95,7 +95,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.580107871443033e-07
+      "latency_seconds": 9.169998520519584e-07
     },
     {
       "goal": "place the object in blue_container",
@@ -105,7 +105,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 1.0829826351255178e-06
+      "latency_seconds": 9.590003173798323e-07
     },
     {
       "goal": "place item at target",
@@ -115,7 +115,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.170034900307655e-07
+      "latency_seconds": 9.57999873207882e-07
     },
     {
       "goal": "move to the target position",
@@ -125,7 +125,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 8.330098353326321e-07
+      "latency_seconds": 8.329989213962108e-07
     },
     {
       "goal": "move forward",
@@ -135,7 +135,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 8.329807315021753e-07
+      "latency_seconds": 7.919989002402872e-07
     },
     {
       "goal": "inspect the red_object",
@@ -145,7 +145,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 8.750066626816988e-07
+      "latency_seconds": 9.159994078800082e-07
     },
     {
       "goal": "inspect blue_container closely",
@@ -155,7 +155,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.170034900307655e-07
+      "latency_seconds": 9.57999873207882e-07
     },
     {
       "goal": "detect then stop",
@@ -165,7 +165,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.580107871443033e-07
+      "latency_seconds": 8.749993867240846e-07
     },
     {
       "goal": "stop and detect",
@@ -175,7 +175,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 8.33999365568161e-07
+      "latency_seconds": 7.919989002402872e-07
     },
     {
       "goal": "do something unspecified",
@@ -185,7 +185,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.170034900307655e-07
+      "latency_seconds": 8.749993867240846e-07
     },
     {
       "goal": "complete the overall task",
@@ -195,7 +195,7 @@
       "decision_confidence": 0.0,
       "matches_expectation": true,
       "agrees_with_planner": null,
-      "latency_seconds": 9.170034900307655e-07
+      "latency_seconds": 8.33999365568161e-07
     }
   ],
   "note": "reasoning_displacement_rate here is specific to this deliberately mixed 18-goal set, not a claim about real-task distributions - RuleDecisionEngine only ever resolves the subset of goals that are zero-parameter and unambiguous, by design (see its own docstring). latency_stats_seconds is the real measured local floor this milestone exists to establish, to compare a future JevDecisionEngine against - not a simulated or estimated number."
