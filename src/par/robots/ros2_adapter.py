@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from par.core.action import Action, ActionResult
 from par.core.observation import Observation
+from par.core.perception import PERCEPTION, PROPRIOCEPTION
 from par.robots.base import RobotInterface
 from par.robots.ros2_mapping import action_to_payload, payload_to_observation
 
@@ -49,6 +50,17 @@ class ROS2Robot(RobotInterface):
         self._node = Node(node_name)
         self._observation_timeout = observation_timeout
         self._latest_payload: dict = {"robot_state": {}, "detections": []}
+        # When each topic last delivered. None means "nothing has ever
+        # arrived", which is emphatically not the same as "the robot is at
+        # the origin and the room is empty" - the reading the empty
+        # payload above would otherwise get. A subscription that goes
+        # silent after sleep, a remapped topic or a publisher that never
+        # starts all land here, and all of them must deny motion rather
+        # than certify a world no sensor ever described.
+        self._last_seen: dict[str, datetime | None] = {
+            PROPRIOCEPTION: None,
+            PERCEPTION: None,
+        }
 
         self._node.create_subscription(String, state_topic, self._on_state, 10)
         self._node.create_subscription(String, detections_topic, self._on_detections, 10)
@@ -56,15 +68,37 @@ class ROS2Robot(RobotInterface):
 
     def _on_state(self, msg: "String") -> None:
         self._latest_payload["robot_state"] = json.loads(msg.data)
+        self._last_seen[PROPRIOCEPTION] = datetime.now(timezone.utc)
 
     def _on_detections(self, msg: "String") -> None:
         self._latest_payload["detections"] = json.loads(msg.data)
+        self._last_seen[PERCEPTION] = datetime.now(timezone.utc)
+
+    def _channels(self) -> dict[str, dict]:
+        """Per-topic health, stamped with when the topic last published.
+
+        `captured_at` is the arrival time rather than now, so a profile
+        with an observation_max_age_seconds window rejects a cached
+        payload. Without it this adapter would keep re-serving its last
+        message forever, each time looking brand new because
+        `Observation.timestamp` is set at packaging.
+        """
+        channels = {}
+        for channel, seen in self._last_seen.items():
+            if seen is None:
+                channels[channel] = {
+                    "available": False,
+                    "detail": f"no message received on the {channel} topic yet",
+                }
+            else:
+                channels[channel] = {"available": True, "captured_at": seen.isoformat()}
+        return channels
 
     def get_observation(self) -> Observation:
         deadline = time.monotonic() + self._observation_timeout
         while time.monotonic() < deadline:
             rclpy.spin_once(self._node, timeout_sec=0.1)
-        return payload_to_observation(self._latest_payload)
+        return payload_to_observation({**self._latest_payload, "channels": self._channels()})
 
     def execute(self, action: Action) -> ActionResult:
         msg = String(data=json.dumps(action_to_payload(action)))

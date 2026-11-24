@@ -48,13 +48,17 @@
       "exp15_failure_taxonomy": 0,
       "exp16_live_api_validation": 0,
       "exp17_ros2_integration": 0,
+      "exp18_mujoco_physics_validation": 0,
       "exp18_physical_robot_validation": 0,
       "exp19_task_diverse_benchmark": 8,
       "exp20_scaling_evaluation": 6,
       "exp21_long_horizon_evaluation": 5,
       "exp22_completion_state_validation": 0,
       "exp24_end_to_end_application_benchmark": 0,
-      "exp25_decision_engine_benchmark": 0
+      "exp25_decision_engine_benchmark": 0,
+      "exp26_local_llm_recovery": 0,
+      "exp26_local_llm_recovery_llama3.2-1b": 0,
+      "exp26_local_llm_recovery_qwen2.5-1.5b": 0
     },
     "files_with_zero_stat_summary_dicts": [
       "exp02_four_outcome_evaluation",
@@ -70,17 +74,21 @@
       "exp15_failure_taxonomy",
       "exp16_live_api_validation",
       "exp17_ros2_integration",
+      "exp18_mujoco_physics_validation",
       "exp18_physical_robot_validation",
       "exp22_completion_state_validation",
       "exp24_end_to_end_application_benchmark",
-      "exp25_decision_engine_benchmark"
+      "exp25_decision_engine_benchmark",
+      "exp26_local_llm_recovery",
+      "exp26_local_llm_recovery_llama3.2-1b",
+      "exp26_local_llm_recovery_qwen2.5-1.5b"
     ],
     "note": "A 'stat summary dict' matches par.evaluation.metrics.SummaryStats's shape (n/mean/median/stdev/ci95_half_width) - the shared reporting format this suite standardized on. A file with 0 is not necessarily non-compliant: Experiments 16-18 are explicitly-documented methodological/not-run entries with no numeric trial data to summarize (see their own 'status' fields), and some experiments report classification metrics (confusion matrices, precision/recall) for which mean/stdev is the wrong format, not a missing one."
   },
   "provenance_for_exact_reproduction": {
     "python_version": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
     "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
-    "git_commit": "4e304b8af665a79aa0b5c47e920eea2426b51c7c",
+    "git_commit": "05e26861f007d7273f369bd452a9676fe402d453",
     "package_versions": {
       "pydantic": "2.13.5",
       "pyyaml": "6.0.3",

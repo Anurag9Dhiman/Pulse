@@ -33,7 +33,7 @@ class NoWorkspaceCheckKernel(SafetyKernel):
 class NoCollisionCheckKernel(SafetyKernel):
     """Ablation 4: collision-margin is never checked."""
 
-    def _check_collision(self, origin, target, observation):
+    def _check_collision(self, origin, target, obstacles):
         return None
 
 

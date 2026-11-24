@@ -90,6 +90,73 @@ Tracking the 4-week MVP plan. Currently: **Week 4 — Demo Hardening**.
       macOS); the bridge and mapping logic are unit-tested against a fake
       collaborator. See `examples/webots_loop.py`.
 
+## Writing a Robot Adapter: the Perception Contract
+
+`RobotInterface` is two methods, so any robot can be plugged in. The Safety
+Kernel's guarantees, however, are conditional on the observation actually
+describing the world — and that condition is now explicit and enforced
+rather than assumed. An adapter that does not satisfy it is refused, not
+silently trusted.
+
+Three rules, all checked in `par.core.perception`:
+
+**1. Report your position under `position`, with all three axes.** A
+missing or malformed position is a denial, not an assumed origin. An
+adapter reporting its pose under some other key used to read as
+`(0, 0, 0)`, which made every swept-volume check start somewhere the robot
+was not — the kernel then certified a path the robot was never going to
+take.
+
+```python
+robot_state = {"position": {"x": 0.4, "y": -0.2, "z": 0.1}}   # required shape
+```
+
+**2. Give every detection a position, or say why it has none.** A
+detection the kernel cannot place cannot be avoided, so it is a contract
+violation. If something genuinely does not constrain motion — a floor
+plane, a 2D-only classification — say so explicitly:
+
+```python
+detections = [
+    {"name": "crate", "position": {"x": 0.5, "y": 0.0, "z": 0.0}},
+    {"name": "floor", "ignore_for_collision": True},     # an explicit claim
+]
+```
+
+**3. Declare your channels' health. An empty detection list is
+ambiguous.** It means either "I looked and the space is clear" or "I could
+not look", and those must not get the same verdict. Say which:
+
+```python
+from par.core.observation import ChannelReport
+from par.core.perception import PERCEPTION, PROPRIOCEPTION
+
+now = datetime.now(timezone.utc)
+channels = {
+    PROPRIOCEPTION: ChannelReport(available=True, captured_at=now),
+    PERCEPTION: ChannelReport(available=False, detail="lidar timed out"),
+}
+```
+
+`captured_at` is when the world was *sensed*. It is not
+`Observation.timestamp`, which is only when the packet was assembled — an
+adapter re-serving a cached reading keeps that fresh forever, which is
+exactly how a silent ROS 2 topic used to pass as current.
+
+A profile can tighten this further. Both options are off in every shipped
+profile, because they express how much a deployment trusts its own sensors
+and that is not PAR's choice to make:
+
+```yaml
+observation_max_age_seconds: 1.0    # reject readings older than this
+require_declared_perception: true   # an adapter that says nothing is treated as blind
+```
+
+What is *not* optional: a malformed position, an unplaceable detection, and
+a channel reporting its own failure are refused under every profile. Those
+are not policy choices — treating them as safe is a bug, and the kernel
+denies motion it cannot bound.
+
 ## Moving to Real Hardware
 
 Everything above is verified in this sandbox with `MockRobot` and, where

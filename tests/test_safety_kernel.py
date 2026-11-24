@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from par.core.action import Action
 from par.core.capability import Capability, RiskLevel
-from par.core.observation import Observation
+from par.core.observation import ChannelReport, Observation
 from par.safety.environment import EnvironmentProfile, Workspace
 from par.safety.kernel import SafetyKernel
 from par.safety.policy import PolicyOutcome
@@ -252,3 +252,166 @@ def test_numeric_strings_are_coerced_rather_than_denied_on_formatting():
     )
 
     assert kernel.check(action, _observation(), _MOVE_CAPABILITY).outcome == PolicyOutcome.ALLOW
+
+
+# ---------------------------------------------------------------------------
+# Unknown is not safe.
+#
+# Every test below used to produce ALLOW. The kernel reasoned about a world
+# the observation did not actually describe - a missing position read as the
+# origin, an unplaceable detection was skipped, a dead sensor's empty
+# detection list read as open space - and then certified motion through it.
+# ---------------------------------------------------------------------------
+
+
+def _bare_observation(**kwargs) -> Observation:
+    defaults = dict(observation_id="o1", timestamp=datetime.now(timezone.utc), source="test")
+    defaults.update(kwargs)
+    return Observation(**defaults)
+
+
+def test_a_move_is_denied_when_the_robot_does_not_report_where_it_is():
+    kernel = SafetyKernel(_PROFILE)
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), _bare_observation(), _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "cannot verify this move against the world" in decision.reason
+
+
+def test_a_move_is_denied_when_the_robot_reports_its_pose_under_an_unrecognised_key():
+    # The third-party-adapter case: a robot reporting "pose" instead of
+    # "position" silently placed itself at the origin, so the swept check
+    # validated a segment starting somewhere the robot was not.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(robot_state={"pose": {"x": 0.9, "y": 0.9, "z": 0.0}})
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "robot_state" in decision.reason
+
+
+def test_a_move_is_denied_when_a_detection_cannot_be_placed():
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[{"name": "person", "confidence": 0.99}],  # seen, but not located
+    )
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "person" in decision.reason
+
+
+def test_a_detection_explicitly_marked_irrelevant_to_geometry_does_not_block_motion():
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[{"name": "floor", "ignore_for_collision": True}],
+    )
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.ALLOW
+
+
+def test_a_dead_sensor_is_denied_even_though_it_reports_an_empty_world():
+    # The headline case. An empty detection list is ambiguous: it means
+    # either "I looked and the space is clear" or "I could not look".
+    # Without the channel report the kernel could not tell them apart and
+    # chose the permissive reading.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[],
+        channels={"detections": ChannelReport(available=False, detail="lidar timed out")},
+    )
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "lidar timed out" in decision.reason
+
+
+def test_the_same_empty_world_is_allowed_when_the_sensor_says_it_is_working():
+    # The other half of the previous test: the fix must not simply deny
+    # more, it must deny exactly the unknown cases.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+        detections=[],
+        channels={"detections": ChannelReport(available=True, captured_at=datetime.now(timezone.utc))},
+    )
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.ALLOW
+
+
+def test_a_stale_observation_is_denied_when_the_profile_sets_an_age_limit():
+    profile = _PROFILE.model_copy(update={"observation_max_age_seconds": 0.5})
+    kernel = SafetyKernel(profile)
+    observation = _bare_observation(
+        timestamp=datetime.now(timezone.utc) - timedelta(seconds=10),
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+    )
+
+    decision = kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "old" in decision.reason
+
+
+def test_the_same_stale_observation_is_accepted_when_no_age_limit_is_configured():
+    # Freshness is deployment policy, not a universal truth: a 1 Hz lidar
+    # and a 1 kHz encoder disagree by three orders of magnitude, so the
+    # shipped profiles set no window and nothing silently changes for them.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        timestamp=datetime.now(timezone.utc) - timedelta(seconds=10),
+        robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}},
+    )
+
+    assert kernel.check(_move_action(0.3, 0.0, 0.0), observation, _MOVE_CAPABILITY).outcome == PolicyOutcome.ALLOW
+
+
+def test_an_adapter_that_declares_nothing_is_denied_only_under_a_profile_that_requires_it():
+    silent = _bare_observation(robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}})
+    action = _move_action(0.3, 0.0, 0.0)
+
+    lenient = SafetyKernel(_PROFILE)
+    assert lenient.check(action, silent, _MOVE_CAPABILITY).outcome == PolicyOutcome.ALLOW
+
+    strict = SafetyKernel(_PROFILE.model_copy(update={"require_declared_perception": True}))
+    decision = strict.check(action, silent, _MOVE_CAPABILITY)
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "no availability declared" in decision.reason
+
+
+def test_a_nan_move_target_is_denied_rather_than_slipping_past_the_collision_test():
+    # NaN compares False against every bound, so `clearance < margin` would
+    # read as clear for a target that is not a position at all.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(robot_state={"position": {"x": 0.0, "y": 0.0, "z": 0.0}})
+
+    decision = kernel.check(_move_action(float("nan"), 0.0, 0.0), observation, _MOVE_CAPABILITY)
+
+    assert decision.outcome == PolicyOutcome.DENY
+    assert "invalid move parameters" in decision.reason
+
+
+def test_a_non_move_action_is_unaffected_by_perception_faults():
+    # The contract is enforced where the kernel actually depends on the
+    # data. `stop` consults no world model, and must stay available
+    # precisely when sensors have failed - denying it would be the
+    # dangerous choice.
+    kernel = SafetyKernel(_PROFILE)
+    observation = _bare_observation(
+        channels={"detections": ChannelReport(available=False, detail="lidar timed out")}
+    )
+    stop = Action(action_id="a2", skill_name="stop", parameters={}, created_at=datetime.now(timezone.utc))
+
+    decision = kernel.check(stop, observation, Capability(name="stop", description="stop", env_profiles=["test"]))
+
+    assert decision.outcome == PolicyOutcome.ALLOW

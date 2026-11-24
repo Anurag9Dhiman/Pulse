@@ -19,7 +19,8 @@ from typing import Any
 from uuid import uuid4
 
 from par.core.action import Action, ActionResult
-from par.core.observation import Observation
+from par.core.observation import ChannelReport, Observation
+from par.core.perception import PERCEPTION, PROPRIOCEPTION
 from par.robots.base import RobotInterface
 
 _SCENE = """
@@ -120,15 +121,20 @@ class MuJoCoRobot(RobotInterface):
 
     def get_observation(self) -> Observation:
         x, y, _ = self.position
+        # Read straight out of the physics state this instant, so both
+        # channels are genuinely current ground truth and say so.
+        now = datetime.now(timezone.utc)
+        healthy = ChannelReport(available=True, captured_at=now)
         return Observation(
             observation_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=now,
             source="mujoco",
             robot_state={"position": {"x": x, "y": y, "z": 0.0}, "holding": self._holding},
             detections=[
                 {"name": name, "position": {"x": ox, "y": oy, "z": 0.0}, "radius": radius}
                 for name, ox, oy, radius in self._obstacles
             ],
+            channels={PROPRIOCEPTION: healthy, PERCEPTION: healthy},
             raw={"ncon": int(self.data.ncon)},
         )
 

@@ -17,10 +17,10 @@
       "n_successful_recoveries_mean": 0.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 7.815540011506528e-05,
-        "median": 5.9500000133994035e-05,
-        "stdev": 5.4253379976212465e-05,
-        "ci95_half_width": 2.7455998450782285e-05
+        "mean": 8.47804665681906e-05,
+        "median": 6.86249986756593e-05,
+        "stdev": 5.741511117835886e-05,
+        "ci95_half_width": 2.905605520348567e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -31,10 +31,10 @@
       "n_successful_recoveries_mean": 3.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00014991666648711544,
-        "median": 0.00014670700147689786,
-        "stdev": 9.574844253647252e-06,
-        "ci95_half_width": 4.845539745355664e-06
+        "mean": 0.00018453060183674098,
+        "median": 0.00017908299923874438,
+        "stdev": 3.0588574645329015e-05,
+        "ci95_half_width": 1.5479954584249342e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -45,10 +45,10 @@
       "n_successful_recoveries_mean": 4.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00016474979978132372,
-        "median": 0.00016145900008268654,
-        "stdev": 1.5619534786080454e-05,
-        "ci95_half_width": 7.904575218660944e-06
+        "mean": 0.0001913585345998096,
+        "median": 0.00018470898794475943,
+        "stdev": 1.3056076796288492e-05,
+        "ci95_half_width": 6.607286485180507e-06
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -59,10 +59,10 @@
       "n_successful_recoveries_mean": 5.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00018722780029444645,
-        "median": 0.00017958100033865776,
-        "stdev": 2.8420652819908946e-05,
-        "ci95_half_width": 1.4382834767820427e-05
+        "mean": 0.00023996980113831037,
+        "median": 0.00023300199973164126,
+        "stdev": 2.8819784108084153e-05,
+        "ci95_half_width": 1.4584823068542004e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -73,10 +73,10 @@
       "n_successful_recoveries_mean": 7.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.00023636146761418786,
-        "median": 0.00023283400150830857,
-        "stdev": 1.2693639514090095e-05,
-        "ci95_half_width": 6.423867913601962e-06
+        "mean": 0.00030458866822300477,
+        "median": 0.0002947920002043247,
+        "stdev": 2.7081476943996552e-05,
+        "ci95_half_width": 1.3705118268120371e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0
@@ -87,10 +87,10 @@
       "n_successful_recoveries_mean": 12.0,
       "cumulative_latency": {
         "n": 15,
-        "mean": 0.0003911610669698954,
-        "median": 0.0003862930025206879,
-        "stdev": 1.934261310684083e-05,
-        "ci95_half_width": 9.78871280883057e-06
+        "mean": 0.000531663999815161,
+        "median": 0.0005279570104903542,
+        "stdev": 2.931341808477081e-05,
+        "ci95_half_width": 1.4834636328197066e-05
       },
       "unsafe_execution_rate": 0.0,
       "planner_termination_rate": 0.0

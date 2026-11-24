@@ -51,15 +51,14 @@ REACH = 1.6
 class EndpointOnlyKernel(SafetyKernel):
     """The superseded check: measures only the target, never the path."""
 
-    def _check_collision(self, origin, target, observation):
+    def _check_collision(self, origin, target, obstacles):
+        # Takes the obstacle list the perception contract has already
+        # parsed, like the real kernel. The ablated behaviour is unchanged:
+        # measure the target alone and ignore the path taken to reach it.
         from par.safety.policy import SafetyDecision
 
-        for detection in observation.detections:
-            position = detection.get("position")
-            if not position:
-                continue
-            point = (position.get("x", 0.0), position.get("y", 0.0), position.get("z", 0.0))
-            if math.dist(target, point) < self.profile.collision_margin:
+        for obstacle in obstacles:
+            if math.dist(target, obstacle.position) < self.profile.collision_margin:
                 return SafetyDecision(
                     outcome=PolicyOutcome.DENY, reason=f"collision risk at target {target}"
                 )
