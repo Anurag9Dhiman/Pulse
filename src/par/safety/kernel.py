@@ -76,11 +76,17 @@ class SafetyKernel:
 
     def _check_move(self, action: Action, observation: Observation) -> SafetyDecision:
         origin = self._current_position(observation)
-        target = (
-            action.parameters.get("x", 0.0),
-            action.parameters.get("y", 0.0),
-            action.parameters.get("z", 0.0),
-        )
+        target = self._target_of(action)
+        if target is None:
+            # A planner is untrusted input: a language model will sometimes
+            # emit "1.0" instead of 1.0, or a null. The kernel must return a
+            # verdict for that, not raise - an exception here propagates out
+            # of the governance layer and no decision is recorded at all.
+            return SafetyDecision(
+                outcome=PolicyOutcome.DENY,
+                reason=f"invalid move parameters: {action.parameters!r} "
+                "(x, y and z must be numbers)",
+            )
 
         violation = self._validate_path(origin, target, observation)
         if violation is not None:
@@ -106,6 +112,23 @@ class SafetyKernel:
                 reason=f"clamped target {clamped_target} is still unsafe: {residual.reason}",
             )
         return clamp
+
+    @staticmethod
+    def _target_of(action: Action) -> Point | None:
+        """The requested target, or None if the parameters are not numeric.
+        Numeric strings are accepted and coerced: rejecting "1.0" outright
+        would deny a well-meant action over formatting, but it must never
+        reach a comparison as a string."""
+        coerced = []
+        for axis in ("x", "y", "z"):
+            value = action.parameters.get(axis, 0.0)
+            if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+                return None
+            try:
+                coerced.append(float(value))
+            except (TypeError, ValueError):
+                return None
+        return (coerced[0], coerced[1], coerced[2])
 
     def _validate_path(
         self, origin: Point, target: Point, observation: Observation

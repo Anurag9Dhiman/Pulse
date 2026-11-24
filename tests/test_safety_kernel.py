@@ -225,3 +225,30 @@ def test_clamping_is_revalidated_when_the_robot_starts_outside_the_workspace():
 
     assert decision.outcome == PolicyOutcome.DENY
     assert "still unsafe" in decision.reason
+
+
+def test_non_numeric_move_parameters_are_denied_rather_than_raising():
+    """A planner is untrusted input. Small language models emit "1.0" or null
+    for a coordinate; if the kernel raises on that, the exception escapes the
+    governance layer and no verdict is recorded for the action at all."""
+    kernel = SafetyKernel(_PROFILE)
+
+    for bad in ({"x": "left", "y": 0.0, "z": 0.0}, {"x": None, "y": 0.0, "z": 0.0}):
+        action = Action(
+            action_id="a1", skill_name="move", parameters=bad, created_at=datetime.now(timezone.utc)
+        )
+        decision = kernel.check(action, _observation(), _MOVE_CAPABILITY)
+        assert decision.outcome == PolicyOutcome.DENY
+        assert "invalid move parameters" in decision.reason
+
+
+def test_numeric_strings_are_coerced_rather_than_denied_on_formatting():
+    kernel = SafetyKernel(_PROFILE)
+    action = Action(
+        action_id="a1",
+        skill_name="move",
+        parameters={"x": "0.4", "y": "0", "z": "0"},
+        created_at=datetime.now(timezone.utc),
+    )
+
+    assert kernel.check(action, _observation(), _MOVE_CAPABILITY).outcome == PolicyOutcome.ALLOW
